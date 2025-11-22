@@ -29,4 +29,6 @@ private:
 
 	bool IsPortal(Vector2 pos);
 	void ActivatePortal(Vector2 currentPos);
+	bool IsChest(Vector2 pos);
+	void DrawChest(Vector2 currentPos);
 };

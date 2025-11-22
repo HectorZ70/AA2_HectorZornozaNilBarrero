@@ -7,6 +7,7 @@ enum class TileType
 {
 	Empty,
 	Wall,
+	Chest,
 	Portal
 };
 

@@ -45,6 +45,8 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 		CC::Lock();
 		CC::SetPosition(absolutePlayerPos.X, absolutePlayerPos.Y);
 		std::cout << "X";
+
+		CC::SetPosition(0, _cellSize.Y + 4);
 		CC::Unlock();
 
 		std::cout << "\n\n\n\n\n\n\n\n  (Q) Salir | (W/A/S/D) Mover | (E) Activar Portal ";
@@ -60,6 +62,7 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 			HandleMovement(key);
 		}
 	}
+	
 }
 
 void OverworldMap::DrawCurrentMap()
@@ -136,6 +139,51 @@ void OverworldMap::ActivatePortal(Vector2 currentPos)
 		if (_currentMapIndex.Y > 0) _currentMapIndex.Y--;
 	}
 	else if (currentPos.Y == _cellSize.Y - 1) // Portal Abajo
+	{
+		if (_currentMapIndex.Y < 2) _currentMapIndex.Y++;
+	}
+}
+
+bool OverworldMap::IsChest(Vector2 pos)
+{
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
+	bool isPortal = false;
+
+	// Bloqueo seguro para verificar el nodo
+	currentMap->SafePickNode(pos, [&](Node* node)
+		{
+			if (node == nullptr) return;
+
+			// Utiliza el método template GetContent()
+			DungeonContent* content = node->GetContent<DungeonContent>();
+
+			if (content != nullptr && content->GetType() == TileType::Chest)
+			{
+				isPortal = true;
+			}
+		});
+
+	return isPortal;
+}
+
+void OverworldMap::DrawChest(Vector2 currentPos)
+{
+	if (!IsChest(currentPos))
+		return;
+
+	if (currentPos.X == 1) // Portal Izquierda
+	{
+		if (_currentMapIndex.X > 0) _currentMapIndex.X--;
+	}
+	else if (currentPos.X == _cellSize.X + 1) // Portal Derecha
+	{
+		if (_currentMapIndex.X < 2) _currentMapIndex.X++;
+	}
+	else if (currentPos.Y == 1) // Portal Arriba
+	{
+		if (_currentMapIndex.Y > 0) _currentMapIndex.Y--;
+	}
+	else if (currentPos.Y == _cellSize.Y + 1) // Portal Abajo
 	{
 		if (_currentMapIndex.Y < 2) _currentMapIndex.Y++;
 	}
