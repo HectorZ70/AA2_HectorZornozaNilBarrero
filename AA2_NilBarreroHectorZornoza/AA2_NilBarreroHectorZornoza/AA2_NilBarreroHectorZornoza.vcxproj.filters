@@ -1,67 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="InputSystem\InputSystem.h" />
-    <ClInclude Include="Utils\ConsoleControl.h" />
-    <ClInclude Include="Player\Player.h" />
+    <ClInclude Include="ConsoleControl_.h" />
+    <ClInclude Include="DungeonContent.h" />
+    <ClInclude Include="DungeonMap.h" />
+    <ClInclude Include="INodeContent.h" />
+    <ClInclude Include="NodeMap_.h" />
+    <ClInclude Include="Node_.h" />
+    <ClInclude Include="OverworldMap.h" />
+    <ClInclude Include="Vector2_.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="InputConsts.h" />
+    <ClInclude Include="InputSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InputSystem\InputSystem.cpp" />
-    <ClCompile Include="InputSystem\InputConsts.h" />
-    <ClCompile Include="Utils\ConsoleControl.cpp" />
-    <ClCompile Include="AA2.cpp" />
-    <ClCompile Include="Player\Player.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="DungeonContent.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="DungeonMap.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="OverworldMap.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Node_.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector2_.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="NodeMap_.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="ConsoleControl_.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="INodeContent.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="DungeonContent.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="DungeonMap.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="OverworldMap.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Node_.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector2_.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="NodeMap_.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="ConsoleControl_.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
+    <ClCompile Include="ConsoleControl_.cpp" />
+    <ClCompile Include="DungeonContent.cpp" />
+    <ClCompile Include="DungeonMap.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="NodeMap_.cpp" />
+    <ClCompile Include="Node_.cpp" />
+    <ClCompile Include="OverworldMap.cpp" />
+    <ClCompile Include="Vector2_.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="InputSystem.cpp" />
   </ItemGroup>
 </Project>

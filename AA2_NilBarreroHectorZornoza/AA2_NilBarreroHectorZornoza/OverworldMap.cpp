@@ -2,9 +2,10 @@
 #include "DungeonContent.h" // Necesario para el casting
 #include <conio.h>          // Para _getch() en Windows (simulación)
 #include "ConsoleControl_.h" 
+#include "Player.h"
 
 OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
-	: _mapSize(mapSize), _cellSize(cellSize), _currentMapIndex(1, 1) // Inicia en el centro
+	: _mapSize(mapSize), _cellSize(cellSize), _currentMapIndex(1, 1), _playerPos(0, 0) // Inicia en el centro
 {
 	// Inicializa los 9 mapas
 	for (int i = 0; i < 3; ++i)
@@ -29,18 +30,18 @@ OverworldMap::~OverworldMap()
 	}
 }
 
-void OverworldMap::Run()
+void OverworldMap::Run(InputSystem& input, Player& player)
 {
-	char input = ' ';
-	Vector2 playerPos(_cellSize.X / 2, _cellSize.Y / 2); // Simulación de posición inicial del jugador
+	int key = 0;
+	_playerPos = Vector2(_cellSize.X / 2, _cellSize.Y / 2);
 
-	while (input != 'q')
+	while (key != K_Q)
 	{
 		CC::Clear(); // Limpia la pantalla 
 		DrawCurrentMap();
 
 		// Dibuja un jugador simulado 'X' (no funka)
-		Vector2 absolutePlayerPos = playerPos + _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap()->_offset;
+		Vector2 absolutePlayerPos = _playerPos + _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap()->_offset;
 		CC::Lock();
 		CC::SetPosition(absolutePlayerPos.X, absolutePlayerPos.Y);
 		std::cout << "X";
@@ -48,15 +49,15 @@ void OverworldMap::Run()
 
 		std::cout << "\n\n\n\n\n\n\n\n  (Q) Salir | (W/A/S/D) Mover | (E) Activar Portal ";
 
-		input = _getch(); // Espera una tecla (simulación de entrada)
+		key = _getch(); // Espera una tecla (simulación de entrada)
 
-		if (input == 'e')
+		if (key == K_E)
 		{
-			ActivatePortal(playerPos);
+			ActivatePortal(_playerPos);
 		}
 		else
 		{
-			HandleMovement(input);
+			HandleMovement(key);
 		}
 	}
 }
@@ -66,11 +67,29 @@ void OverworldMap::DrawCurrentMap()
 	_dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->Draw();
 }
 
-void OverworldMap::HandleMovement(char input)
+void OverworldMap::HandleMovement(int key)
 {
-	// Simulación simple: el jugador solo puede moverse si no hay una pared.
-	// La implementación completa requeriría re-implementar el movimiento y
-	// las interacciones de forma segura (SafePickNode)
+	switch (key)
+	{
+	case K_W: _playerPos.Y--; break;
+	case K_S: _playerPos.Y++; break;
+	case K_A: _playerPos.X--; break;
+	case K_D: _playerPos.X++; break;
+	}
+
+	ClampPlayerToMap();
+}
+
+void OverworldMap::ClampPlayerToMap()
+{
+	if (_playerPos.X < 0) _playerPos.X = 0;
+	if (_playerPos.Y < 0) _playerPos.Y = 0;
+
+	int maxX = _cellSize.X - 1;
+	int maxY = _cellSize.Y - 1;
+
+	if (_playerPos.X > maxX) _playerPos.X = maxX;
+	if (_playerPos.Y > maxY) _playerPos.Y = maxY;
 }
 
 bool OverworldMap::IsPortal(Vector2 pos)

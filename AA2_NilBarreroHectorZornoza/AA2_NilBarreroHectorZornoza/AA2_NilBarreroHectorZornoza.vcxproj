@@ -131,19 +131,25 @@
     <ClInclude Include="DungeonContent.h" />
     <ClInclude Include="DungeonMap.h" />
     <ClInclude Include="INodeContent.h" />
+    <ClInclude Include="InputConsts.h" />
+    <ClInclude Include="InputSystem.h" />
     <ClInclude Include="NodeMap_.h" />
     <ClInclude Include="Node_.h" />
     <ClInclude Include="OverworldMap.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Vector2_.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleControl_.cpp" />
     <ClCompile Include="DungeonContent.cpp" />
     <ClCompile Include="DungeonMap.cpp" />
+    <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NodeMap_.cpp" />
     <ClCompile Include="Node_.cpp" />
     <ClCompile Include="OverworldMap.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Source.cpp" />
     <ClCompile Include="Vector2_.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

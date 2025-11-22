@@ -14,10 +14,14 @@ int main()
 
 	OverworldMap gameMap(mapSize, cellSize);
 
+	InputSystem input;
+
+	Player player;
+
 	std::cout << "Mapa inicializado (3x3). Presione 'Q' para salir.\n";
 
 	// Bucle principal del juego
-	gameMap.Run();
+	gameMap.Run(input, player);
 
 	std::cout << "Saliendo del juego.\n";
 
