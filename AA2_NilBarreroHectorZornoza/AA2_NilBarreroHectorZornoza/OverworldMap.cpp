@@ -124,7 +124,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 	int maxMapIndexX = _mapSize.X - 1; 
 	int maxMapIndexY = _mapSize.Y - 1; 
 
-	if (currentPos.X == 0) // Portal Izquierda (hacia X--)
+	if (currentPos.X == 0) // Portal Izquierda 
 	{
 		if (_currentMapIndex.X > 0)
 		{
@@ -133,7 +133,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 			mapChanged = true;
 		}
 	}
-	else if (currentPos.X == _cellSize.X - 1) // Portal Derecha (hacia X++)
+	else if (currentPos.X == _cellSize.X - 1) // Portal Derecha 
 	{
 		if (_currentMapIndex.X < maxMapIndexX)
 		{
@@ -142,7 +142,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 			mapChanged = true;
 		}
 	}
-	else if (currentPos.Y == 0) // Portal Arriba (hacia Y--)
+	else if (currentPos.Y == 0) // Portal Arriba 
 	{
 		if (_currentMapIndex.Y > 0)
 		{
@@ -151,7 +151,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 			mapChanged = true;
 		}
 	}
-	else if (currentPos.Y == _cellSize.Y - 1) // Portal Abajo (hacia Y++)
+	else if (currentPos.Y == _cellSize.Y - 1) // Portal Abajo 
 	{
 		if (_currentMapIndex.Y < maxMapIndexY)
 		{
@@ -167,8 +167,6 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 		_playerPos = newPos;
 
 		player.SetPosition(_playerPos);
-
-		CC::Clear();
 	}
 }
 
