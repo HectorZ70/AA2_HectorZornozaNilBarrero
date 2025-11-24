@@ -1,6 +1,7 @@
 #pragma once
 #include <mutex>
 #include <chrono>
+#include "Vector2_.h"
 
 enum EDirection
 {
@@ -27,5 +28,8 @@ public:
 	~Player();
 	void Move(int key);
 	void PrintPosition();
+
+	Vector2 GetPosition();
+	void SetPosition(Vector2 pos);
 };
 

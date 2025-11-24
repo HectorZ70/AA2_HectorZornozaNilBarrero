@@ -1,15 +1,15 @@
 #include "DungeonMap.h"
 #include "DungeonContent.h"
 
-DungeonMap::DungeonMap(Vector2 size, Vector2 offset)
+DungeonMap::DungeonMap(Vector2 overworldPos, Vector2 size, Vector2 offset)
 {
 	_map = new NodeMap(size, offset);
-	SetupMap(size);
+	SetupMap(overworldPos, size);
 }
 
 DungeonMap::~DungeonMap()
 {
-	//delete _map;
+	delete _map;
 }
 
 void DungeonMap::Draw()
@@ -22,12 +22,13 @@ NodeMap* DungeonMap::GetNodeMap()
 	return _map;
 }
 
-// Simula la creación de paredes y portales
-void DungeonMap::SetupMap(Vector2 size)
+void DungeonMap::SetupMap(Vector2 overworldPos, Vector2 size)
 {
-	// Las dimensiones de la cuadrícula
 	int maxX = size.X - 1;
 	int maxY = size.Y - 1;
+
+	int maxOverworldX = 2; 
+	int maxOverworldY = 2; 
 
 	for (int x = 0; x < size.X; x++)
 	{
@@ -36,28 +37,42 @@ void DungeonMap::SetupMap(Vector2 size)
 			Vector2 pos(x, y);
 
 			_map->SafePickNode(pos, [&](Node* node)
-				{
+			{
 					if (node == nullptr) return;
 
-					// Lógica de Paredes (borde)
 					if (x == 0 || x == maxX || y == 0 || y == maxY)
 					{
-						// Lógica de Portales: en las esquinas centrales del borde
-						if ((x == 0 && y == maxY / 2) || (x == maxX && y == maxY / 2) ||
-							(y == 0 && x == maxX / 2) || (y == maxY && x == maxX / 2))
+						bool isPortalSpot = (x == 0 && y == maxY / 2) || // Izquierda
+							(x == maxX && y == maxY / 2) || // Derecha
+							(y == 0 && x == maxX / 2) || // Arriba
+							(y == maxY && x == maxX / 2); // Abajo
+
+						if (isPortalSpot)
 						{
-							node->SetContent(new DungeonContent(TileType::Portal, 'P'));
+							bool canGoLeft = (x == 0 && overworldPos.X > 0);
+							bool canGoRight = (x == maxX && overworldPos.X < maxOverworldX);
+							bool canGoUp = (y == 0 && overworldPos.Y > 0);
+							bool canGoDown = (y == maxY && overworldPos.Y < maxOverworldY);
+
+							if (canGoLeft || canGoRight || canGoUp || canGoDown)
+							{
+								node->SetContent(new DungeonContent(TileType::Portal, 'P'));
+							}
+							else
+							{
+								node->SetContent(new DungeonContent(TileType::Wall, '#'));
+							}
 						}
-						else // Pared en el resto del borde
+						else
 						{
 							node->SetContent(new DungeonContent(TileType::Wall, '#'));
 						}
 					}
-					else // Espacio vacío
+					else
 					{
-						node->SetContent(new DungeonContent(TileType::Empty, '.'));
+						node->SetContent(new DungeonContent(TileType::Empty, ' '));
 					}
-				});
+			});
 		}
 	}
 }

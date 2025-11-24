@@ -5,7 +5,7 @@
 class DungeonMap
 {
 public:
-	DungeonMap(Vector2 size, Vector2 offset);
+	DungeonMap(Vector2 overworldPos, Vector2 size, Vector2 offset);
 	~DungeonMap();
 
 	void Draw();
@@ -15,5 +15,5 @@ public:
 private:
 	NodeMap* _map;
 
-	void SetupMap(Vector2 size);
+	void SetupMap(Vector2 overworldPos, Vector2 size);
 };
