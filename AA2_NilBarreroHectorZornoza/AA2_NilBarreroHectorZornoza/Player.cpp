@@ -44,6 +44,22 @@ void Player::PrintPosition()
 	_mutexPlayer.unlock();
 }
 
+Vector2 Player::GetPosition()
+{
+	_mutexPlayer.lock();
+	Vector2 pos(_x, _y);
+	_mutexPlayer.unlock();
+	return pos;
+}
+
+void Player::SetPosition(Vector2 pos)
+{
+	_mutexPlayer.lock();
+	_x = pos.X;
+	_y = pos.Y;
+	_mutexPlayer.unlock();
+}
+
 Player::Player()
 {
 

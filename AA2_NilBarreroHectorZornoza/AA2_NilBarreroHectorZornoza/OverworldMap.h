@@ -23,12 +23,10 @@ private:
 	Vector2 _mapSize;
 	Vector2 _cellSize;
 
-	void HandleMovement(int key);
 	void DrawCurrentMap();
-	void ClampPlayerToMap();
 
 	bool IsPortal(Vector2 pos);
-	void ActivatePortal(Vector2 currentPos);
+	void ActivatePortal(Vector2 currentPos, Player& player);
 	bool IsChest(Vector2 pos);
-	void DrawChest(Vector2 currentPos);
+	bool IsWall(Vector2 pos);
 };
