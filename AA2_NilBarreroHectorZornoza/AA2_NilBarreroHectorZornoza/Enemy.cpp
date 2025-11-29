@@ -1,8 +1,10 @@
 #include "Enemy.h"
 #include "DungeonContent.h"
+#include "DungeonMap.h"
 
 void Enemy::MoveAI()
 {
+	srand(time(NULL));
 	int dir = rand() % 4;
 	Vector2 newPos = _pos;
 

@@ -28,6 +28,7 @@ void ConsoleControl::Clear()
 {
     std::cout << "\033[2J\033[1;1H";
     //FillWithCharacter(' ', WHITE, BLACK);
+    system("cls");
 }
 
 void ConsoleControl::FillWithCharacter(char character, ConsoleColor textColor, ConsoleColor backgroundColor)

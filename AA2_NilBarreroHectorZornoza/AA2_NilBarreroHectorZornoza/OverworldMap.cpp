@@ -3,6 +3,8 @@
 #include <conio.h>          // Para _getch() en Windows (simulación)
 #include "ConsoleControl_.h" 
 
+using CC = ConsoleControl;
+
 OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 	: _mapSize(mapSize), _cellSize(cellSize), _currentMapIndex(1, 1), _playerPos(0, 0) // Inicia en el centro
 
@@ -14,7 +16,7 @@ OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 		{
 			// Cálculo del offset: cada mapa tiene el tamaño _cellSize.
 			Vector2 offset(i * _cellSize.X, j * _cellSize.Y);
-			_dungeonMaps[i][j] = new DungeonMap(_cellSize, offset);
+			_dungeonMaps[i][j] = new DungeonMap(Vector2(i, j), _cellSize, offset);
 		}
 	}
 
@@ -34,15 +36,6 @@ OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 
 OverworldMap::~OverworldMap()
 {
-	for (Enemy* e : _enemies)
-		e->Stop();
-
-	for (std::thread& t : _enemyThreads)
-		t.join();
-	
-	for (Enemy* e : _enemies)
-		delete e;
-
 	for (int i = 0; i < 3; ++i)
 	{
 		for (int j = 0; j < 3; ++j)
@@ -50,38 +43,70 @@ OverworldMap::~OverworldMap()
 			delete _dungeonMaps[i][j];
 		}
 	}
+
+	for (Enemy* e : _enemies)
+		e->Stop();
+
+	for (std::thread& t : _enemyThreads)
+		t.join();
+
+	for (Enemy* e : _enemies)
+		delete e;
 }
 
 void OverworldMap::Run(InputSystem& input, Player& player)
 {
 	int key = 0;
 	_playerPos = Vector2(_cellSize.X / 2, _cellSize.Y / 2);
+	player.SetPosition(_playerPos);
 
-	while (key != K_Q)
+	while (key != K_ESCAPE)
 	{
 		CC::Clear(); // Limpia la pantalla 
 		DrawCurrentMap();
 
-		// Dibuja un jugador simulado 'X' (no funka)
-		Vector2 absolutePlayerPos = _playerPos + _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap()->_offset;
-		CC::Lock();
-		CC::SetPosition(absolutePlayerPos.X, absolutePlayerPos.Y);
-		std::cout << "X";
+		Vector2 currentMapOffset = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap()->_offset;
+		Vector2 playerPosInMap = player.GetPosition();
 
-		CC::SetPosition(0, _cellSize.Y + 4);
+		CC::Lock();
+		CC::SetPosition(playerPosInMap.X + currentMapOffset.X, playerPosInMap.Y + currentMapOffset.Y);
+		CC::SetColor(CC::GREEN, CC::BLACK);
+		std::cout << "J";
+
+		CC::SetPosition(0, _cellSize.Y + 4 + currentMapOffset.Y);
+		CC::SetColor(CC::WHITE, CC::BLACK);
+		std::cout << "Mapa: [" << _currentMapIndex.X << ", " << _currentMapIndex.Y << "] | Pos: [" << playerPosInMap.X << ", " << playerPosInMap.Y << "]";
+		std::cout << "\n\n(ESC) Salir | (W/A/S/D) Mover ";
 		CC::Unlock();
 
-		std::cout << "\n\n\n\n\n\n\n\n  (Q) Salir | (W/A/S/D) Mover | (E) Activar Portal ";
+		key = _getch();
 
-		key = _getch(); // Espera una tecla (simulación de entrada)
+		if (key == K_W || key == K_S || key == K_A || key == K_D)
+		{
+			Vector2 oldPos = player.GetPosition();
 
-		if (key == K_E)
-		{
-			ActivatePortal(_playerPos);
-		}
-		else
-		{
-			HandleMovement(key);
+			player.Move(key);
+
+			Vector2 newPos = player.GetPosition();
+
+			if (newPos.X != oldPos.X || newPos.Y != oldPos.Y)
+			{
+				if (IsPortal(newPos))
+				{
+					ActivatePortal(newPos, player);
+				}
+				else if (IsWall(newPos))
+				{
+					player.SetPosition(oldPos);
+				}
+				// Interacción con Cofre (si se implementa)
+				else if (IsChest(newPos))
+				{
+
+				}
+
+				_playerPos = player.GetPosition();
+			}
 		}
 	}
 	
@@ -89,18 +114,23 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 
 void OverworldMap::DrawCurrentMap()
 {
-	DungeonMap* map = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X];
+	DungeonMap* map = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y];
 	map->Draw();
+
+	Vector2 offset = map->GetNodeMap()->_offset;
 
 	for (Enemy* e : _enemies)
 	{
 		Vector2 room = e->GetRoom();
+
+		// Si el enemigo está en el mismo mapa que el jugador, se muestra
 		if (room.X == _currentMapIndex.X && room.Y == _currentMapIndex.Y)
 		{
 			Vector2 pos = e->GetPosition();
-			Vector2 absolute = pos + map->GetNodeMap()->_offset;
+			Vector2 absPos = pos + offset;
 
-			CC::SetPosition(absolute.X, absolute.Y);
+			CC::SetPosition(absPos.X, absPos.Y);
+			CC::SetColor(CC::RED, CC::BLACK);
 			std::cout << "E";
 		}
 	}
@@ -133,15 +163,13 @@ void OverworldMap::ClampPlayerToMap()
 
 bool OverworldMap::IsPortal(Vector2 pos)
 {
-	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
 	bool isPortal = false;
 
-	// Bloqueo seguro para verificar el nodo
 	currentMap->SafePickNode(pos, [&](Node* node)
 		{
 			if (node == nullptr) return;
 
-			// Utiliza el método template GetContent()
 			DungeonContent* content = node->GetContent<DungeonContent>();
 
 			if (content != nullptr && content->GetType() == TileType::Portal)
@@ -153,37 +181,66 @@ bool OverworldMap::IsPortal(Vector2 pos)
 	return isPortal;
 }
 
-void OverworldMap::ActivatePortal(Vector2 currentPos)
+void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 {
-	if (!IsPortal(currentPos))
+	int prevMapX = _currentMapIndex.X;
+	int prevMapY = _currentMapIndex.Y;
+	Vector2 newPos = currentPos;
+	bool mapChanged = false;
+
+	int maxMapIndexX = _mapSize.X - 1;
+	int maxMapIndexY = _mapSize.Y - 1;
+
+	if (currentPos.X == 0) // Portal Izquierda 
 	{
-		return;
+		if (_currentMapIndex.X > 0)
+		{
+			_currentMapIndex.X--;
+			newPos.X = _cellSize.X - 2;
+			mapChanged = true;
+		}
+	}
+	else if (currentPos.X == _cellSize.X - 1) // Portal Derecha 
+	{
+		if (_currentMapIndex.X < maxMapIndexX)
+		{
+			_currentMapIndex.X++;
+			newPos.X = 1;
+			mapChanged = true;
+		}
+	}
+	else if (currentPos.Y == 0) // Portal Arriba 
+	{
+		if (_currentMapIndex.Y > 0)
+		{
+			_currentMapIndex.Y--;
+			newPos.Y = _cellSize.Y - 2;
+			mapChanged = true;
+		}
+	}
+	else if (currentPos.Y == _cellSize.Y - 1) // Portal Abajo 
+	{
+		if (_currentMapIndex.Y < maxMapIndexY)
+		{
+			_currentMapIndex.Y++;
+			newPos.Y = 1;
+			mapChanged = true;
+		}
 	}
 
-	// Lógica de cambio de mapa
-	// Comprobar qué lado del mapa estamos 
-	if (currentPos.X == 0) // Portal Izquierda
+	// Si el índice del mapa ha cambiado, actualiza la posición del jugador y limpia la consola
+	if (mapChanged)
 	{
-		if (_currentMapIndex.X > 0) _currentMapIndex.X--;
-	}
-	else if (currentPos.X == _cellSize.X - 1) // Portal Derecha
-	{
-		if (_currentMapIndex.X < 2) _currentMapIndex.X++;
-	}
-	else if (currentPos.Y == 0) // Portal Arriba
-	{
-		if (_currentMapIndex.Y > 0) _currentMapIndex.Y--;
-	}
-	else if (currentPos.Y == _cellSize.Y - 1) // Portal Abajo
-	{
-		if (_currentMapIndex.Y < 2) _currentMapIndex.Y++;
+		_playerPos = newPos;
+
+		player.SetPosition(_playerPos);
 	}
 }
 
 bool OverworldMap::IsChest(Vector2 pos)
 {
 	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
-	bool isPortal = false;
+	bool isChest = false;
 
 	// Bloqueo seguro para verificar el nodo
 	currentMap->SafePickNode(pos, [&](Node* node)
@@ -195,32 +252,33 @@ bool OverworldMap::IsChest(Vector2 pos)
 
 			if (content != nullptr && content->GetType() == TileType::Chest)
 			{
-				isPortal = true;
+				isChest = true;
 			}
 		});
 
-	return isPortal;
+	return isChest;
 }
 
-void OverworldMap::DrawChest(Vector2 currentPos)
+bool OverworldMap::IsWall(Vector2 pos)
 {
-	if (!IsChest(currentPos))
-		return;
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
+	bool isWall = false;
 
-	if (currentPos.X == 1) // Portal Izquierda
-	{
-		if (_currentMapIndex.X > 0) _currentMapIndex.X--;
-	}
-	else if (currentPos.X == _cellSize.X + 1) // Portal Derecha
-	{
-		if (_currentMapIndex.X < 2) _currentMapIndex.X++;
-	}
-	else if (currentPos.Y == 1) // Portal Arriba
-	{
-		if (_currentMapIndex.Y > 0) _currentMapIndex.Y--;
-	}
-	else if (currentPos.Y == _cellSize.Y + 1) // Portal Abajo
-	{
-		if (_currentMapIndex.Y < 2) _currentMapIndex.Y++;
-	}
+	// Bloqueo seguro para verificar el nodo
+	currentMap->SafePickNode(pos, [&](Node* node)
+		{
+			if (node == nullptr) return;
+
+			// Utiliza el método template GetContent()
+			DungeonContent* content = node->GetContent<DungeonContent>();
+
+			if (content != nullptr && content->GetType() == TileType::Wall)
+			{
+				isWall = true;
+			}
+		});
+
+	return isWall;
 }
+
+

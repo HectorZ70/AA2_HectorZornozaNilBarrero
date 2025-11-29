@@ -3,7 +3,7 @@
 #include "DungeonMap.h"
 #include <mutex>
 
-class Enemy
+class Enemy 
 {
 private:
 	Vector2 _pos;
@@ -28,7 +28,5 @@ public:
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
 	}
-
-private:
 	void MoveAI();
 };
