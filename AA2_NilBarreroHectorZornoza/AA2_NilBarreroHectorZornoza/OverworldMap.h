@@ -2,6 +2,7 @@
 #include "DungeonMap.h"
 #include "InputSystem.h"
 #include "Player.h"
+#include "Enemy.h"
 #include <map>
 
 // El mapa grande de 3x3 que contiene los mapas pequeños
@@ -19,6 +20,9 @@ private:
 	DungeonMap* _dungeonMaps[3][3];
 	Vector2 _currentMapIndex;
 	Vector2 _playerPos;
+
+	std::vector<Enemy*> _enemies;
+	std::vector<std::thread> _enemyThreads;
 
 	Vector2 _mapSize;
 	Vector2 _cellSize;

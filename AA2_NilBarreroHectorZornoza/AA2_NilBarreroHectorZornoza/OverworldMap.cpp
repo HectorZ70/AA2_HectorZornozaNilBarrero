@@ -1,14 +1,13 @@
 #include "OverworldMap.h"
-#include "DungeonContent.h"
-#include <conio.h>
-#include "ConsoleControl_.h"
-#include "Player.h"
-#include "InputConsts.h" 
+#include "DungeonContent.h" // Necesario para el casting
+#include <conio.h>          // Para _getch() en Windows (simulaciï¿½n)
+#include "ConsoleControl_.h" 
 
 using CC = ConsoleControl;
 
 OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
-	: _mapSize(mapSize), _cellSize(cellSize), _currentMapIndex(1, 1), _playerPos(0, 0) 
+	: _mapSize(mapSize), _cellSize(cellSize), _currentMapIndex(1, 1), _playerPos(0, 0) // Inicia en el centro
+
 {
 	// Inicializa los 9 mapas
 	for (int i = 0; i < _mapSize.X; ++i)
@@ -18,6 +17,19 @@ OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 			Vector2 offset(i * _cellSize.X, j * _cellSize.Y);
 			_dungeonMaps[i][j] = new DungeonMap(Vector2(i, j), _cellSize, offset);
 		}
+	}
+
+	_enemies.push_back(
+		new Enemy(Vector2(4, 5), Vector2(1, 1), _dungeonMaps[1][1])
+	);
+
+	_enemies.push_back(
+		new Enemy(Vector2(8, 2), Vector2(1, 1), _dungeonMaps[1][1])
+	);
+
+	for (Enemy* e : _enemies)
+	{
+		_enemyThreads.emplace_back(&Enemy::RunEnemies, e);
 	}
 }
 
@@ -30,6 +42,15 @@ OverworldMap::~OverworldMap()
 			delete _dungeonMaps[i][j];
 		}
 	}
+
+	for (Enemy* e : _enemies)
+		e->Stop();
+
+	for (std::thread& t : _enemyThreads)
+		t.join();
+
+	for (Enemy* e : _enemies)
+		delete e;
 }
 
 void OverworldMap::Run(InputSystem& input, Player& player)
@@ -48,16 +69,16 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 
 		CC::Lock();
 		CC::SetPosition(playerPosInMap.X + currentMapOffset.X, playerPosInMap.Y + currentMapOffset.Y);
-		CC::SetColor(CC::GREEN, CC::BLACK); 
-		std::cout << "E"; 
+		CC::SetColor(CC::GREEN, CC::BLACK);
+		std::cout << "J";
 
-		CC::SetPosition(0, _cellSize.Y + 4 + currentMapOffset.Y); 
+		CC::SetPosition(0, _cellSize.Y + 4 + currentMapOffset.Y);
 		CC::SetColor(CC::WHITE, CC::BLACK);
 		std::cout << "Mapa: [" << _currentMapIndex.X << ", " << _currentMapIndex.Y << "] | Pos: [" << playerPosInMap.X << ", " << playerPosInMap.Y << "]";
 		std::cout << "\n\n(ESC) Salir | (W/A/S/D) Mover ";
 		CC::Unlock();
 
-		key = _getch(); 
+		key = _getch();
 
 		if (key == K_W || key == K_S || key == K_A || key == K_D)
 		{
@@ -77,10 +98,10 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 				{
 					player.SetPosition(oldPos);
 				}
-				// Interacción con Cofre (si se implementa)
+				// Interacciï¿½n con Cofre (si se implementa)
 				else if (IsChest(newPos))
 				{
-					
+
 				}
 
 				_playerPos = player.GetPosition();
@@ -91,7 +112,26 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 
 void OverworldMap::DrawCurrentMap()
 {
-	_dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->Draw();
+	DungeonMap* map = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y];
+	map->Draw();
+
+	Vector2 offset = map->GetNodeMap()->_offset;
+
+	for (Enemy* e : _enemies)
+	{
+		Vector2 room = e->GetRoom();
+
+		// Si el enemigo estï¿½ en el mismo mapa que el jugador, se muestra
+		if (room.X == _currentMapIndex.X && room.Y == _currentMapIndex.Y)
+		{
+			Vector2 pos = e->GetPosition();
+			Vector2 absPos = pos + offset;
+
+			CC::SetPosition(absPos.X, absPos.Y);
+			CC::SetColor(CC::RED, CC::BLACK);
+			std::cout << "E";
+		}
+	}
 }
 
 bool OverworldMap::IsPortal(Vector2 pos)
@@ -121,8 +161,8 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 	Vector2 newPos = currentPos;
 	bool mapChanged = false;
 
-	int maxMapIndexX = _mapSize.X - 1; 
-	int maxMapIndexY = _mapSize.Y - 1; 
+	int maxMapIndexX = _mapSize.X - 1;
+	int maxMapIndexY = _mapSize.Y - 1;
 
 	if (currentPos.X == 0) // Portal Izquierda 
 	{
@@ -138,7 +178,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 		if (_currentMapIndex.X < maxMapIndexX)
 		{
 			_currentMapIndex.X++;
-			newPos.X = 1; 
+			newPos.X = 1;
 			mapChanged = true;
 		}
 	}
@@ -161,7 +201,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 		}
 	}
 
-	// Si el índice del mapa ha cambiado, actualiza la posición del jugador y limpia la consola
+	// Si el ï¿½ndice del mapa ha cambiado, actualiza la posiciï¿½n del jugador y limpia la consola
 	if (mapChanged)
 	{
 		_playerPos = newPos;
@@ -172,7 +212,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 
 bool OverworldMap::IsChest(Vector2 pos)
 {
-	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
 	bool isChest = false;
 
 	currentMap->SafePickNode(pos, [&](Node* node)
@@ -192,13 +232,15 @@ bool OverworldMap::IsChest(Vector2 pos)
 
 bool OverworldMap::IsWall(Vector2 pos)
 {
-	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
 	bool isWall = false;
 
+	// Bloqueo seguro para verificar el nodo
 	currentMap->SafePickNode(pos, [&](Node* node)
 		{
 			if (node == nullptr) return;
 
+			// Utiliza el mï¿½todo template GetContent()
 			DungeonContent* content = node->GetContent<DungeonContent>();
 
 			if (content != nullptr && content->GetType() == TileType::Wall)
@@ -209,3 +251,5 @@ bool OverworldMap::IsWall(Vector2 pos)
 
 	return isWall;
 }
+
+

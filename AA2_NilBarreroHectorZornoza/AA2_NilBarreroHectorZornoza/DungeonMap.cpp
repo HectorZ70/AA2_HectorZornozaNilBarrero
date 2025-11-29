@@ -22,13 +22,14 @@ NodeMap* DungeonMap::GetNodeMap()
 	return _map;
 }
 
+// Simula la creaci�n de paredes y portales
 void DungeonMap::SetupMap(Vector2 overworldPos, Vector2 size)
 {
 	int maxX = size.X - 1;
 	int maxY = size.Y - 1;
 
-	int maxOverworldX = 2; 
-	int maxOverworldY = 2; 
+	int maxOverworldX = 2;
+	int maxOverworldY = 2;
 
 	for (int x = 0; x < size.X; x++)
 	{
