@@ -8,7 +8,10 @@ enum class TileType
 	Empty,
 	Wall,
 	Chest,
-	Portal
+	Portal,
+	Potion,
+	Coin,
+	Weapon
 };
 
 class DungeonContent : public INodeContent
