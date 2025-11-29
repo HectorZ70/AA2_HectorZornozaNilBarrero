@@ -2,10 +2,10 @@
 #include "DungeonContent.h" // Necesario para el casting
 #include <conio.h>          // Para _getch() en Windows (simulación)
 #include "ConsoleControl_.h" 
-#include "Player.h"
 
 OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 	: _mapSize(mapSize), _cellSize(cellSize), _currentMapIndex(1, 1), _playerPos(0, 0) // Inicia en el centro
+
 {
 	// Inicializa los 9 mapas
 	for (int i = 0; i < 3; ++i)
@@ -17,10 +17,32 @@ OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 			_dungeonMaps[i][j] = new DungeonMap(_cellSize, offset);
 		}
 	}
+
+	_enemies.push_back(
+		new Enemy(Vector2(4, 5), Vector2(1, 1), _dungeonMaps[1][1])
+	);
+
+	_enemies.push_back(
+		new Enemy(Vector2(8, 2), Vector2(1, 1), _dungeonMaps[1][1])
+	);
+
+	for (Enemy* e : _enemies)
+	{
+		_enemyThreads.emplace_back(&Enemy::RunEnemies, e);
+	}
 }
 
 OverworldMap::~OverworldMap()
 {
+	for (Enemy* e : _enemies)
+		e->Stop();
+
+	for (std::thread& t : _enemyThreads)
+		t.join();
+	
+	for (Enemy* e : _enemies)
+		delete e;
+
 	for (int i = 0; i < 3; ++i)
 	{
 		for (int j = 0; j < 3; ++j)
@@ -41,7 +63,7 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 		DrawCurrentMap();
 
 		// Dibuja un jugador simulado 'X' (no funka)
-		Vector2 absolutePlayerPos = _playerPos + _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap()->_offset;
+		Vector2 absolutePlayerPos = _playerPos + _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap()->_offset;
 		CC::Lock();
 		CC::SetPosition(absolutePlayerPos.X, absolutePlayerPos.Y);
 		std::cout << "X";
@@ -67,7 +89,21 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 
 void OverworldMap::DrawCurrentMap()
 {
-	_dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->Draw();
+	DungeonMap* map = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X];
+	map->Draw();
+
+	for (Enemy* e : _enemies)
+	{
+		Vector2 room = e->GetRoom();
+		if (room.X == _currentMapIndex.X && room.Y == _currentMapIndex.Y)
+		{
+			Vector2 pos = e->GetPosition();
+			Vector2 absolute = pos + map->GetNodeMap()->_offset;
+
+			CC::SetPosition(absolute.X, absolute.Y);
+			std::cout << "E";
+		}
+	}
 }
 
 void OverworldMap::HandleMovement(int key)
@@ -97,7 +133,7 @@ void OverworldMap::ClampPlayerToMap()
 
 bool OverworldMap::IsPortal(Vector2 pos)
 {
-	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
 	bool isPortal = false;
 
 	// Bloqueo seguro para verificar el nodo
@@ -146,7 +182,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos)
 
 bool OverworldMap::IsChest(Vector2 pos)
 {
-	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
 	bool isPortal = false;
 
 	// Bloqueo seguro para verificar el nodo

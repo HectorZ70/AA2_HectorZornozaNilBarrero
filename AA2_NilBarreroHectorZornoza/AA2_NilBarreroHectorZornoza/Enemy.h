@@ -1,37 +1,34 @@
 #pragma once
 #include "Player.h"
-#include "Timer.h"
+#include "DungeonMap.h"
+#include <mutex>
 
-enum class LeftCenterRight{
-	LEFT = 0, 
-	CENTER = 1, 
-	RIGHT = 2, 
-};
-
-enum class UpCenterDown
-{
-	UP = 0, 
-	CENTER = 1, 
-	DOWN = 2, 
-};
-
-class Enemy : public Player
+class Enemy
 {
 private:
-	Timer* timer;
+	Vector2 _pos;
+	Vector2 _room;
+	DungeonMap* _map;
+	bool running = true;
 
 public:
-	Enemy(Vector2 pos, LeftCenterRight _xArea, UpCenterDown _yArea);
-	void Draw(Vector2 offset)override;
-	void Kill();
-	void BeHurt();
-	void IsDead();
-	void WaitForNextActionLoop();
-	void DoneActing();
+	Enemy(Vector2 initPos, Vector2 room, DungeonMap* map)
+		: _pos(initPos), _room(room), _map(map) { }
 
-	LeftCenterRight xArea;
-	UpCenterDown yArea;
-	int timeForNextMove;
-	bool iCanMove;
-	int health;
+	Vector2 GetPosition() const { return _pos; }
+	Vector2 GetRoom() const { return _room; }
+
+	void Stop() { running = false; }
+
+	void RunEnemies()
+	{
+		while (running)
+		{
+			MoveAI();
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+	}
+
+private:
+	void MoveAI();
 };
