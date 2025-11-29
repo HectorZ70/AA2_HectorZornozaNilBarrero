@@ -10,9 +10,9 @@ OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 
 {
 	// Inicializa los 9 mapas
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < _mapSize.X; ++i)
 	{
-		for (int j = 0; j < 3; ++j)
+		for (int j = 0; j < _mapSize.Y; ++j)
 		{
 			// Cálculo del offset: cada mapa tiene el tamaño _cellSize.
 			Vector2 offset(i * _cellSize.X, j * _cellSize.Y);
@@ -36,9 +36,9 @@ OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 
 OverworldMap::~OverworldMap()
 {
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < _mapSize.X; ++i)
 	{
-		for (int j = 0; j < 3; ++j)
+		for (int j = 0; j < _mapSize.Y; ++j)
 		{
 			delete _dungeonMaps[i][j];
 		}
