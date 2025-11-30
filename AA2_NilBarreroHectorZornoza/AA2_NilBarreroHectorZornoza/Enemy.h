@@ -6,6 +6,7 @@
 class Enemy 
 {
 private:
+	int e_hp = 20;
 	Vector2 _pos;
 	Vector2 _room;
 	DungeonMap* _map;
@@ -29,4 +30,6 @@ public:
 		}
 	}
 	void MoveAI();
+
+	void TakeDamage(int dmg);
 };

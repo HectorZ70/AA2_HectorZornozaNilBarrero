@@ -4,7 +4,6 @@
 
 void Enemy::MoveAI()
 {
-	srand(time(NULL));
 	int dir = rand() % 4;
 	Vector2 newPos = _pos;
 
@@ -48,4 +47,20 @@ void Enemy::MoveAI()
 
 	if (canMove)
 		_pos = newPos;
+}
+
+void Enemy::TakeDamage(int dmg)
+{
+	e_hp -= dmg;
+
+	if (e_hp <= 0)
+	{
+		e_hp = 0;
+		std::cout << "Enemy defeated!\n";
+	}
+
+	else
+	{
+		std::cout << "Enemy HP: " << e_hp << "\n";
+	}
 }

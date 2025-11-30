@@ -12,8 +12,8 @@
 #define K_W 119
 #define K_S 115
 #define K_D 100
-#define K_Q 87
-#define K_E 69
+#define K_Q 113
+#define K_E 101
 
 #define K_0 48
 #define K_1 49

@@ -4,6 +4,7 @@
 
 int main()
 {
+	srand(time(NULL));
 	std::cout << "Inicializando el sistema de Mapas...\n";
 
 	// Tamaño de cada mapa: 10x10 nodos
