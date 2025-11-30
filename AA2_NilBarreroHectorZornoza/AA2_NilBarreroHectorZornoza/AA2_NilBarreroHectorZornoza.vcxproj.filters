@@ -15,6 +15,8 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Chest.h" />
+    <ClInclude Include="Loot.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleControl_.cpp" />
@@ -29,5 +31,7 @@
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Chest.cpp" />
+    <ClCompile Include="Loot.cpp" />
   </ItemGroup>
 </Project>

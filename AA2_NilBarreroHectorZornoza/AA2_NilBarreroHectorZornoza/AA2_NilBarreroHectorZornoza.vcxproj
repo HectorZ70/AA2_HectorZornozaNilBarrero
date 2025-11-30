@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Chest.h" />
     <ClInclude Include="ConsoleControl_.h" />
     <ClInclude Include="DungeonContent.h" />
     <ClInclude Include="DungeonMap.h" />
@@ -135,6 +136,7 @@
     <ClInclude Include="INodeContent.h" />
     <ClInclude Include="InputConsts.h" />
     <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="Loot.h" />
     <ClInclude Include="NodeMap_.h" />
     <ClInclude Include="Node_.h" />
     <ClInclude Include="OverworldMap.h" />
@@ -143,11 +145,13 @@
     <ClInclude Include="Vector2_.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Chest.cpp" />
     <ClCompile Include="ConsoleControl_.cpp" />
     <ClCompile Include="DungeonContent.cpp" />
     <ClCompile Include="DungeonMap.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="InputSystem.cpp" />
+    <ClCompile Include="Loot.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NodeMap_.cpp" />
     <ClCompile Include="Node_.cpp" />
