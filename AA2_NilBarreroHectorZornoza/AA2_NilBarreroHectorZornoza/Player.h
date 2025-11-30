@@ -15,21 +15,26 @@ class Player
 {
 private:
     Player* player;
-    int _x, _y = 0;
+    int _x, _y;
+    int weaponDamage;
+    int weaponRange;
     std::mutex _mutexPlayer;
     std::chrono::steady_clock::time_point _lastActionTime;
     std::chrono::milliseconds _coolDown{ 300 };
-    int c_hp;
-    int c_coins;
-    int c_potions;
+    int c_hp = 75;
+    int c_coins = 0;
+    int c_potions = 4;
 
 public:
     Player();
     ~Player();
     void Move(int key);
     void PrintPosition();
-    void Attack();
+    void DrinkPoption(int key);
 
     Vector2 GetPosition();
+    int GetHP() { return c_hp; }
+    int GetPotions() { return c_potions; }
+    void SetHP(int hp);
     void SetPosition(Vector2 pos);
 };

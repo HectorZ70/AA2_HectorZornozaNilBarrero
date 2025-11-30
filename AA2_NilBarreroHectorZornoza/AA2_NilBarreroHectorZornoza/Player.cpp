@@ -60,6 +60,18 @@ void Player::SetPosition(Vector2 pos)
     _mutexPlayer.unlock();
 }
 
+void Player::DrinkPoption(int key)
+{
+    if (key == K_Q && c_hp == 100 && c_potions > 0) {
+        c_potions--;
+    }
+
+    else if (key == K_Q && c_potions > 0) {
+        c_potions--;
+        c_hp += 25;
+    }
+}
+
 Player::Player()
 {
     
