@@ -1,6 +1,6 @@
 #include "OverworldMap.h"
 #include "DungeonContent.h" // Necesario para el casting
-#include <conio.h>          // Para _getch() en Windows (simulaci�n)
+#include <conio.h>          // Para _getch() en Windows (simulacion)
 #include "ConsoleControl_.h" 
 
 using CC = ConsoleControl;
@@ -63,6 +63,7 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 	{
 		CC::Clear(); 
 		DrawCurrentMap();
+		DrawHUD(player);
 
 		Vector2 currentMapOffset = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap()->_offset;
 		Vector2 playerPosInMap = player.GetPosition();
@@ -80,11 +81,11 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 
 		key = _getch();
 
-		if (key == K_W || key == K_S || key == K_A || key == K_D)
-		{
 			Vector2 oldPos = player.GetPosition();
 
 			player.Move(key);
+			
+			player.DrinkPoption(key);
 
 			Vector2 newPos = player.GetPosition();
 
@@ -98,15 +99,13 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 				{
 					player.SetPosition(oldPos);
 				}
-				// Interacci�n con Cofre (si se implementa)
+				// Interaccion con Cofre (si se implementa)
 				else if (IsChest(newPos))
 				{
 
 				}
-
 				_playerPos = player.GetPosition();
 			}
-		}
 	}
 }
 
@@ -121,7 +120,7 @@ void OverworldMap::DrawCurrentMap()
 	{
 		Vector2 room = e->GetRoom();
 
-		// Si el enemigo est� en el mismo mapa que el jugador, se muestra
+		// Si el enemigo esto en el mismo mapa que el jugador, se muestra
 		if (room.X == _currentMapIndex.X && room.Y == _currentMapIndex.Y)
 		{
 			Vector2 pos = e->GetPosition();
@@ -132,6 +131,20 @@ void OverworldMap::DrawCurrentMap()
 			std::cout << "E";
 		}
 	}
+}
+
+void OverworldMap::DrawHUD(Player& player)
+{
+	int hudX = _cellSize.X + 12;
+	int hudY = _cellSize.Y;
+
+	CC::SetColor(CC::WHITE, CC::BLACK);
+
+	CC::SetPosition(hudX, hudY);
+	std::cout << "HP: " << player.GetHP();
+
+	CC::SetPosition(hudX, hudY + 1);
+	std::cout << "Pots: " << player.GetPotions();
 }
 
 bool OverworldMap::IsPortal(Vector2 pos)
@@ -201,7 +214,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 		}
 	}
 
-	// Si el �ndice del mapa ha cambiado, actualiza la posici�n del jugador y limpia la consola
+	// Si el indice del mapa ha cambiado, actualiza la posicion del jugador y limpia la consola
 	if (mapChanged)
 	{
 		_playerPos = newPos;
@@ -240,7 +253,7 @@ bool OverworldMap::IsWall(Vector2 pos)
 		{
 			if (node == nullptr) return;
 
-			// Utiliza el m�todo template GetContent()
+			// Utiliza el metodo template GetContent()
 			DungeonContent* content = node->GetContent<DungeonContent>();
 
 			if (content != nullptr && content->GetType() == TileType::Wall)

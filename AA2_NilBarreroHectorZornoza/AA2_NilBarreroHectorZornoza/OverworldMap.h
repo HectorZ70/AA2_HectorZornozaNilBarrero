@@ -14,6 +14,8 @@ public:
 
 	void Run(InputSystem& input, Player& player);
 
+	
+
 private:
 	// Mapa de los 9 mapas: (0,0) es la esquina superior izquierda.
 	// El mapa inicial es (1, 1)
@@ -28,6 +30,7 @@ private:
 	Vector2 _cellSize;
 
 	void DrawCurrentMap();
+	void DrawHUD(Player& player);
 
 	bool IsPortal(Vector2 pos);
 	void ActivatePortal(Vector2 currentPos, Player& player);
