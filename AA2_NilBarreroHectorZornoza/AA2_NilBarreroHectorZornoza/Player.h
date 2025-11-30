@@ -2,6 +2,10 @@
 #include <mutex>
 #include <chrono>
 #include "Vector2_.h"
+#include <vector>
+#include "Enemy.h"
+
+class Enemy;
 
 enum EDirection
 {
@@ -9,6 +13,7 @@ enum EDirection
     DOWN = 1,
     LEFT = 2,
     RIGHT = 3,
+    NONE 
 };
 
 class Player
@@ -31,10 +36,12 @@ public:
     void Move(int key);
     void PrintPosition();
     void DrinkPoption(int key);
+    bool Attack(EDirection dir, std::vector<Enemy*>& enemies);
 
     Vector2 GetPosition();
     int GetHP() { return c_hp; }
     int GetPotions() { return c_potions; }
     void SetHP(int hp);
     void SetPosition(Vector2 pos);
+    bool IsDead() const;
 };

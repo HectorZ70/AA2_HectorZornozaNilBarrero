@@ -32,4 +32,6 @@ public:
 	void MoveAI();
 
 	void TakeDamage(int dmg);
+	
+	bool IsDead() const;
 };

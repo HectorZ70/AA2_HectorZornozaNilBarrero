@@ -72,6 +72,57 @@ void Player::DrinkPoption(int key)
     }
 }
 
+bool Player::Attack(EDirection dir, std::vector<Enemy*>& enemies)
+{
+    int dx = 0, dy = 0;
+    weaponDamage = 20;
+
+    switch (dir)
+    {
+    case UP:    dy = -1; break;
+    case DOWN:  dy = 1; break;
+    case LEFT:  dx = -1; break;
+    case RIGHT: dx = 1; break;
+    }
+
+    Vector2 p = GetPosition();
+
+    for (int i = 1; i <= weaponRange; i++)
+    {
+        Vector2 checkPos = { p.X + dx * i, p.Y + dy * i };
+
+        auto it = enemies.begin();
+        while (it != enemies.end())
+        {
+            Enemy* e = *it;
+
+            if (e->GetPosition().X == checkPos.X && e->GetPosition().Y == checkPos.Y)
+            {
+                e->TakeDamage(weaponDamage);
+
+                if (e->IsDead())
+                {
+                    e->Stop(); 
+                    delete e;  
+                    it = enemies.erase(it); 
+                }
+                else
+                {
+                    ++it; 
+                }
+
+                return true; 
+            }
+            else
+            {
+                ++it; 
+            }
+        }
+    }
+    return false;
+}
+
+
 Player::Player()
 {
     
