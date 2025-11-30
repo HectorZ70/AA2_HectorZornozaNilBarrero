@@ -33,6 +33,7 @@ private:
 	void DrawHUD(Player& player);
 
 	bool IsPortal(Vector2 pos);
+	Enemy* GetEnemyAt(const Vector2& pos);
 	void ActivatePortal(Vector2 currentPos, Player& player);
 	bool IsChest(Vector2 pos);
 	bool IsWall(Vector2 pos);

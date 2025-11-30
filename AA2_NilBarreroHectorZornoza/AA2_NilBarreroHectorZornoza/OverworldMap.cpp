@@ -2,6 +2,7 @@
 #include "DungeonContent.h" // Necesario para el casting
 #include <conio.h>          // Para _getch() en Windows (simulacion)
 #include "ConsoleControl_.h" 
+#include "Enemy.h"
 
 using CC = ConsoleControl;
 
@@ -18,7 +19,6 @@ OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 			_dungeonMaps[i][j] = new DungeonMap(Vector2(i, j), _cellSize, offset);
 		}
 	}
-
 	_enemies.push_back(
 		new Enemy(Vector2(4, 5), Vector2(1, 1), _dungeonMaps[1][1])
 	);
@@ -32,7 +32,6 @@ OverworldMap::OverworldMap(Vector2 mapSize, Vector2 cellSize)
 		_enemyThreads.emplace_back(&Enemy::RunEnemies, e);
 	}
 }
-
 OverworldMap::~OverworldMap()
 {
 	for (int i = 0; i < _mapSize.X; ++i)
@@ -59,6 +58,7 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 	_playerPos = Vector2(_cellSize.X / 2, _cellSize.Y / 2);
 	player.SetPosition(_playerPos);
 
+
 	while (key != K_ESCAPE)
 	{
 		CC::Clear(); 
@@ -81,6 +81,8 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 
 		key = _getch();
 
+		EDirection dir;
+
 			Vector2 oldPos = player.GetPosition();
 
 			player.Move(key);
@@ -88,6 +90,13 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 			player.DrinkPoption(key);
 
 			Vector2 newPos = player.GetPosition();
+
+			Enemy* target = GetEnemyAt(newPos);
+
+			if (newPos.Y < oldPos.Y) dir = UP;
+			else if (newPos.Y > oldPos.Y) dir = DOWN;
+			else if (newPos.X < oldPos.X) dir = RIGHT;
+			else if (newPos.X > oldPos.X) dir = LEFT;
 
 			if (newPos.X != oldPos.X || newPos.Y != oldPos.Y)
 			{
@@ -103,6 +112,10 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 				else if (IsChest(newPos))
 				{
 
+				}
+				else if (GetEnemyAt(newPos))
+				{
+					player.Attack(dir, _enemies);
 				}
 				_playerPos = player.GetPosition();
 			}
@@ -167,11 +180,21 @@ bool OverworldMap::IsPortal(Vector2 pos)
 	return isPortal;
 }
 
+Enemy* OverworldMap::GetEnemyAt(const Vector2& pos)
+{
+	for (auto& e : _enemies)
+		if (e->GetPosition().X == pos.X + 1 &&
+			e->GetPosition().Y == pos.Y + 1)
+			return e;
+
+	return nullptr;
+}
+
 void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 {
 	int prevMapX = _currentMapIndex.X;
 	int prevMapY = _currentMapIndex.Y;
-	Vector2 newPos = currentPos;
+	Vector2 newPos = currentPos; // portal pos
 	bool mapChanged = false;
 
 	int maxMapIndexX = _mapSize.X - 1;

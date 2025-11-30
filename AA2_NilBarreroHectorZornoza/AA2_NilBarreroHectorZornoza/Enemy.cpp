@@ -64,3 +64,8 @@ void Enemy::TakeDamage(int dmg)
 		std::cout << "Enemy HP: " << e_hp << "\n";
 	}
 }
+
+bool Enemy::IsDead() const
+{
+	return e_hp <= 0;
+}
