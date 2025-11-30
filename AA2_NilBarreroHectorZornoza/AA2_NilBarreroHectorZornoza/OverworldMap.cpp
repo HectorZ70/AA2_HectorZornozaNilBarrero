@@ -108,7 +108,6 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 				{
 					player.SetPosition(oldPos);
 				}
-				// Interaccion con Cofre (si se implementa)
 				else if (IsChest(newPos))
 				{
 
@@ -133,7 +132,6 @@ void OverworldMap::DrawCurrentMap()
 	{
 		Vector2 room = e->GetRoom();
 
-		// Si el enemigo esto en el mismo mapa que el jugador, se muestra
 		if (room.X == _currentMapIndex.X && room.Y == _currentMapIndex.Y)
 		{
 			Vector2 pos = e->GetPosition();
@@ -237,7 +235,6 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 		}
 	}
 
-	// Si el indice del mapa ha cambiado, actualiza la posicion del jugador y limpia la consola
 	if (mapChanged)
 	{
 		_playerPos = newPos;
@@ -271,12 +268,10 @@ bool OverworldMap::IsWall(Vector2 pos)
 	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
 	bool isWall = false;
 
-	// Bloqueo seguro para verificar el nodo
 	currentMap->SafePickNode(pos, [&](Node* node)
 		{
 			if (node == nullptr) return;
 
-			// Utiliza el metodo template GetContent()
 			DungeonContent* content = node->GetContent<DungeonContent>();
 
 			if (content != nullptr && content->GetType() == TileType::Wall)
