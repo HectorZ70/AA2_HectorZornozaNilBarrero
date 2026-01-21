@@ -141,6 +141,7 @@
     <ClInclude Include="Node_.h" />
     <ClInclude Include="OverworldMap.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="SaveState.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Vector2_.h" />
   </ItemGroup>

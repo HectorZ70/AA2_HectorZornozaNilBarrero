@@ -17,6 +17,7 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Chest.h" />
     <ClInclude Include="Loot.h" />
+    <ClInclude Include="SaveState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleControl_.cpp" />
