@@ -8,7 +8,6 @@
 
 using namespace std;
 
-// Control para cerrar el hilo de autoguardado limpiamente
 atomic<bool> isGameRunning(true);
 
 void AutoSaveLoop(OverworldMap& gameMap, Player& player) {
@@ -17,7 +16,6 @@ void AutoSaveLoop(OverworldMap& gameMap, Player& player) {
 
         if (!isGameRunning) break;
 
-        // Captura el estado y lo guarda a JSON usando SaveManager
         SaveState current = gameMap.CaptureCurrentState(player);
         SaveManager::SaveToFile(current, "autosave.json");
     }
@@ -33,10 +31,8 @@ int main() {
     OverworldMap gameMap(mapSize, cellSize);
     InputSystem input;
 
-    // --- SISTEMA DE CARGA ---
     SaveState loadedData = SaveManager::LoadFromFile("autosave.json");
 
-    // Si el HP es <= 0, asumimos que no hay partida o el jugador murió
     if (loadedData.playerHP > 0) {
         player.SetHP(loadedData.playerHP);
         player.SetPosition(loadedData.playerPos);
@@ -49,18 +45,14 @@ int main() {
         CC::Unlock();
     }
     else {
-        // Valores iniciales si no hay partida
         player.SetPosition(Vector2(5, 5));
         gameMap.SetCurrentMap(Vector2(1, 1));
     }
 
-    // --- INICIO DE HILOS ---
     thread saveThread(AutoSaveLoop, ref(gameMap), ref(player));
 
-    // Ejecución principal
     gameMap.Run(input, player);
 
-    // --- CIERRE LIMPIO ---
     isGameRunning = false;
     if (saveThread.joinable()) {
         saveThread.join();

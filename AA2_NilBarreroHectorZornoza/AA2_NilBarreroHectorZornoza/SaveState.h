@@ -11,7 +11,6 @@ struct EnemySaveData {
 
 struct SaveState {
     int playerHP;
-    int playerCoins;
     int playerPotions;
     Vector2 playerPos;
 

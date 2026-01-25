@@ -1,23 +1,19 @@
 #include "SaveManager.h"
-#include <json/json.h> // La librería que analizamos
+#include <json/json.h> 
 #include <fstream>
 #include <iostream>
 
 bool SaveManager::SaveToFile(const SaveState& state, const std::string& filename) {
     Json::Value root;
 
-    // 1. Mapear Player
     root["player"]["hp"] = state.playerHP;
-    root["player"]["coins"] = state.playerCoins;
     root["player"]["potions"] = state.playerPotions;
     root["player"]["pos_x"] = state.playerPos.X;
     root["player"]["pos_y"] = state.playerPos.Y;
 
-    // 2. Mapear Mundo
     root["world"]["map_x"] = state.currentMapIndex.X;
     root["world"]["map_y"] = state.currentMapIndex.Y;
 
-    // 3. Mapear Enemigos
     Json::Value enemies(Json::arrayValue);
     for (int i = 0; i < state.enemyCount; ++i) {
         Json::Value e;
@@ -29,7 +25,6 @@ bool SaveManager::SaveToFile(const SaveState& state, const std::string& filename
     }
     root["enemies"] = enemies;
 
-    // 4. Escribir al archivo
     try {
         std::ofstream file(filename);
         Json::StreamWriterBuilder builder;
@@ -43,28 +38,26 @@ bool SaveManager::SaveToFile(const SaveState& state, const std::string& filename
 
 SaveState SaveManager::LoadFromFile(const std::string& filename) {
     SaveState state;
-    // Inicializamos valores por defecto por seguridad
     state.playerHP = 100;
+    state.playerPotions = 4;
     state.enemyCount = 0;
 
     std::ifstream file(filename);
     if (!file.is_open()) {
-        return state; // Si no hay archivo, devolvemos el estado por defecto
+        return state; 
     }
 
     Json::Value root;
     Json::CharReaderBuilder builder;
     std::string errs;
 
-    // Parsear el archivo JSON
     if (!Json::parseFromStream(builder, file, &root, &errs)) {
-        return state; // Si el JSON está mal formado, devolvemos estado por defecto
+        return state;
     }
 
     // --- CARGAR JUGADOR ---
     if (root.isMember("player")) {
         state.playerHP = root["player"]["hp"].asInt();
-        state.playerCoins = root["player"]["coins"].asInt();
         state.playerPotions = root["player"]["potions"].asInt();
         state.playerPos.X = root["player"]["pos_x"].asInt();
         state.playerPos.Y = root["player"]["pos_y"].asInt();
@@ -81,7 +74,6 @@ SaveState SaveManager::LoadFromFile(const std::string& filename) {
         const Json::Value enemies = root["enemies"];
         state.enemyCount = (int)enemies.size();
 
-        // No cargar más del máximo permitido por tu SaveState.h
         if (state.enemyCount > MAX_ENEMIES) state.enemyCount = MAX_ENEMIES;
 
         for (int i = 0; i < state.enemyCount; ++i) {
@@ -89,7 +81,6 @@ SaveState SaveManager::LoadFromFile(const std::string& filename) {
             state.enemies[i].position.Y = enemies[i]["y"].asInt();
             state.enemies[i].hp = enemies[i]["hp"].asInt();
             state.enemies[i].isDead = enemies[i]["dead"].asBool();
-            //room se puede deducir o guardar también si es necesario
         }
     }
 
