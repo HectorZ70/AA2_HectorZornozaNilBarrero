@@ -125,7 +125,12 @@ bool Player::Attack(EDirection dir, std::vector<Enemy*>& enemies)
 
 Player::Player()
 {
-    
+    _x = 5;
+    _y = 5;
+    c_hp = 100;
+    c_potions = 4; 
+    weaponRange = 1;
+    _lastActionTime = std::chrono::steady_clock::now();
 }
 
 Player::~Player()

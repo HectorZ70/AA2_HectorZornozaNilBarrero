@@ -41,7 +41,8 @@ public:
     Vector2 GetPosition();
     int GetHP() { return c_hp; }
     int GetPotions() { return c_potions; }
-    void SetHP(int hp);
+    void SetHP(int hp) { _mutexPlayer.lock(); c_hp = hp; _mutexPlayer.unlock(); }
+    void SetPotions(int potions) { _mutexPlayer.lock(); c_potions = potions; _mutexPlayer.unlock(); }
     void SetPosition(Vector2 pos);
     bool IsDead() const;
 };
