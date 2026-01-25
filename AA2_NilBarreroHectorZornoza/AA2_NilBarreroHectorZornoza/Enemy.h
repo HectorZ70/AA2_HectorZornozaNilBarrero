@@ -7,6 +7,9 @@ class Enemy
 {
 private:
 	int e_hp = 20;
+	std::chrono::steady_clock::time_point _lastActionTime;
+	std::chrono::milliseconds _coolDown{ 300 };
+	std::mutex _mutexEnemy;
 	Vector2 _pos;
 	Vector2 _room;
 	DungeonMap* _map;
@@ -21,15 +24,9 @@ public:
 
 	void Stop() { running = false; }
 
-	void RunEnemies()
-	{
-		while (running)
-		{
-			MoveAI();
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-	}
 	void MoveAI();
+
+	void RunEnemies();
 
 	void TakeDamage(int dmg);
 	
