@@ -109,3 +109,4 @@ void ConsoleControl::Unlock()
 {
     GetInstance()._consoleMutex->unlock();
 }
+

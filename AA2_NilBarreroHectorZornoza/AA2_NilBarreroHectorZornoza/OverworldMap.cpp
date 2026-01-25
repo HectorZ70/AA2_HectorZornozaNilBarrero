@@ -146,7 +146,7 @@ void OverworldMap::DrawCurrentMap()
 
 void OverworldMap::DrawHUD(Player& player)
 {
-	int hudX = _cellSize.X + 12;
+	int hudX = _cellSize.X + 30;
 	int hudY = _cellSize.Y;
 
 	CC::SetColor(CC::WHITE, CC::BLACK);
@@ -283,4 +283,34 @@ bool OverworldMap::IsWall(Vector2 pos)
 	return isWall;
 }
 
+SaveState OverworldMap::CaptureCurrentState(Player& player)
+{
+	SaveState state;
 
+	state.playerHP = player.GetHP();
+	state.playerPotions = player.GetPotions();
+	state.playerPos = player.GetPosition(); 
+
+	state.currentMapIndex = _currentMapIndex;
+
+	state.enemyCount = (int)_enemies.size();
+	if (state.enemyCount > MAX_ENEMIES) state.enemyCount = MAX_ENEMIES;
+
+	for (int i = 0; i < state.enemyCount; ++i)
+	{
+		state.enemies[i].position = _enemies[i]->GetPosition();
+		state.enemies[i].room = _enemies[i]->GetRoom();
+		state.enemies[i].isDead = _enemies[i]->IsDead();
+		state.enemies[i].hp = 20;
+	}
+
+	return state;
+}
+
+void OverworldMap::SetCurrentMap(Vector2 mapIndex)
+{
+	if (mapIndex.X >= 0 && mapIndex.X < 3 && mapIndex.Y >= 0 && mapIndex.Y < 3)
+	{
+		_currentMapIndex = mapIndex;
+	}
+}

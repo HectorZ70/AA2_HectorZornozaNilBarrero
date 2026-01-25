@@ -1,30 +1,75 @@
+#include <iostream>
+#include <thread>
+#include <atomic>
 #include "OverworldMap.h"
 #include "ConsoleControl_.h"
-#include <iostream>
+#include "SaveManager.h"
+#include "InputSystem.h"
 
-int main()
-{
-	srand(time(NULL));
-	std::cout << "Inicializando el sistema de Mapas...\n";
+using namespace std;
 
-	// Tamaño de cada mapa: 10x10 nodos
-	Vector2 cellSize(10, 10);
+// Control para cerrar el hilo de autoguardado limpiamente
+atomic<bool> isGameRunning(true);
 
-	// El mapa grande es 3x3
-	Vector2 mapSize(3, 3);
+void AutoSaveLoop(OverworldMap& gameMap, Player& player) {
+    while (isGameRunning) {
+        this_thread::sleep_for(chrono::seconds(5));
 
-	OverworldMap gameMap(mapSize, cellSize);
+        if (!isGameRunning) break;
 
-	InputSystem input;
+        // Captura el estado y lo guarda a JSON usando SaveManager
+        SaveState current = gameMap.CaptureCurrentState(player);
+        SaveManager::SaveToFile(current, "autosave.json");
+    }
+}
 
-	Player player;
+int main() {
+    srand(static_cast<unsigned int>(time(NULL)));
 
-	std::cout << "Mapa inicializado (3x3). Presione 'Q' para salir.\n";
+    Vector2 cellSize(10, 10);
+    Vector2 mapSize(3, 3);
 
-	// Bucle principal del juego
-	gameMap.Run(input, player);
+    Player player;
+    OverworldMap gameMap(mapSize, cellSize);
+    InputSystem input;
 
-	std::cout << "Saliendo del juego.\n";
+    // --- SISTEMA DE CARGA ---
+    SaveState loadedData = SaveManager::LoadFromFile("autosave.json");
 
-	return 0;
+    // Si el HP es <= 0, asumimos que no hay partida o el jugador murió
+    if (loadedData.playerHP > 0) {
+        player.SetHP(loadedData.playerHP);
+        player.SetPosition(loadedData.playerPos);
+        player.SetPotions(loadedData.playerPotions);
+        gameMap.SetCurrentMap(loadedData.currentMapIndex);
+
+        CC::Lock();
+        cout << "Partida cargada exitosamente." << endl;
+        this_thread::sleep_for(chrono::milliseconds(500));
+        CC::Unlock();
+    }
+    else {
+        // Valores iniciales si no hay partida
+        player.SetPosition(Vector2(5, 5));
+        gameMap.SetCurrentMap(Vector2(1, 1));
+    }
+
+    // --- INICIO DE HILOS ---
+    thread saveThread(AutoSaveLoop, ref(gameMap), ref(player));
+
+    // Ejecución principal
+    gameMap.Run(input, player);
+
+    // --- CIERRE LIMPIO ---
+    isGameRunning = false;
+    if (saveThread.joinable()) {
+        saveThread.join();
+    }
+
+    CC::Lock();
+    CC::Clear();
+    cout << "Juego cerrado. Partida guardada." << endl;
+    CC::Unlock();
+
+    return 0;
 }

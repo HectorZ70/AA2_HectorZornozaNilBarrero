@@ -3,6 +3,7 @@
 #include "InputSystem.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "SaveState.h"
 #include <map>
 
 // El mapa grande de 3x3 que contiene los mapas pequeños
@@ -13,6 +14,8 @@ public:
 	~OverworldMap();
 
 	void Run(InputSystem& input, Player& player);
+	SaveState CaptureCurrentState(Player& player);
+	void SetCurrentMap(Vector2 mapIndex);
 
 private:
 	// Mapa de los 9 mapas: (0,0) es la esquina superior izquierda.
@@ -35,4 +38,5 @@ private:
 	void ActivatePortal(Vector2 currentPos, Player& player);
 	bool IsChest(Vector2 pos);
 	bool IsWall(Vector2 pos);
+	
 };
