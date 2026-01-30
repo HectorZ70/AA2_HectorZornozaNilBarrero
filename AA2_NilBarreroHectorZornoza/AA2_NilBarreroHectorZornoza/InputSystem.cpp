@@ -102,44 +102,38 @@ void InputSystem::StopListen()
 
 void InputSystem::ListenLoop()
 {
-	_classMutex.lock();
-
-	_state = Listening;
-	State currentState = _state;
-	CC::ClearKeyBuffer();
-	_classMutex.unlock();
-
-	while (currentState == Listening)
 	{
-		int key = CC::ReadNextKey();
+		std::lock_guard<std::mutex> lock(_classMutex);
+		_state = Listening;
+		CC::ClearKeyBuffer();
+	}
+
+	while (true)
+	{
+		{
+			std::lock_guard<std::mutex> lock(_classMutex);
+			if (_state != Listening)
+				break;
+		}
+
+		int key = CC::ReadNextKey(); 
 
 		if (key != 0)
 		{
-			_classMutex.lock();
+			std::lock_guard<std::mutex> lock(_classMutex);
 
-			if (_keyBindingMap.find(key) != _keyBindingMap.end())
+			auto it = _keyBindingMap.find(key);
+			if (it != _keyBindingMap.end())
 			{
-				KeyBindingList list = _keyBindingMap[key];
-
-				for (KeyBinding* binding : list)
+				for (KeyBinding* binding : it->second)
 				{
-					std::thread* onKeypPressThread = new std::thread(binding->_onKeyPress);
-					onKeypPressThread->detach();
+					binding->_onKeyPress();
 				}
 			}
-
-			_classMutex.unlock();
 		}
-
-		_classMutex.lock();
-		currentState = _state;
-		_classMutex.unlock();
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
 
-	_classMutex.lock();
-	if (_state == Stopping)
-	{
-		_state = Stopped;
-	}
-	_classMutex.unlock();
+	std::lock_guard<std::mutex> lock(_classMutex);
+	_state = Stopped;
 }

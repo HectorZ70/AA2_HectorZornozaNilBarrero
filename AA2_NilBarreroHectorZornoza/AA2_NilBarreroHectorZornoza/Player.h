@@ -37,6 +37,7 @@ public:
     void PrintPosition();
     void DrinkPoption(int key);
     bool Attack(EDirection dir, std::vector<Enemy*>& enemies);
+    void TakeDamage(int dmg);
 
     Vector2 GetPosition();
     int GetHP() { return c_hp; }
@@ -44,5 +45,5 @@ public:
     void SetHP(int hp) { _mutexPlayer.lock(); c_hp = hp; _mutexPlayer.unlock(); }
     void SetPotions(int potions) { _mutexPlayer.lock(); c_potions = potions; _mutexPlayer.unlock(); }
     void SetPosition(Vector2 pos);
-    bool IsDead() const;
+    bool IsDead();
 };

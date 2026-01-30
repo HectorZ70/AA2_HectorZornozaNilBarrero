@@ -4,7 +4,7 @@
 		{
 			"dead" : false,
 			"hp" : 20,
-			"x" : 4,
+			"x" : 2,
 			"y" : 4
 		},
 		{
@@ -17,13 +17,13 @@
 	"player" : 
 	{
 		"hp" : 100,
-		"pos_x" : 7,
-		"pos_y" : 5,
-		"potions" : 4
+		"pos_x" : 4,
+		"pos_y" : 7,
+		"potions" : 0
 	},
 	"world" : 
 	{
-		"map_x" : 0,
-		"map_y" : 0
+		"map_x" : 1,
+		"map_y" : 1
 	}
 }

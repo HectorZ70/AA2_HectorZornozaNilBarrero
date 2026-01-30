@@ -54,20 +54,22 @@ OverworldMap::~OverworldMap()
 
 void OverworldMap::Run(InputSystem& input, Player& player)
 {
-	int key = 0;
 	_playerPos = Vector2(_cellSize.X / 2, _cellSize.Y / 2);
 	player.SetPosition(_playerPos);
 	bool running = true;
 
-	input.AddListener(K_W, [&]() {player.Move(K_W); });
-	input.AddListener(K_S, [&]() {player.Move(K_S); });
-	input.AddListener(K_A, [&]() {player.Move(K_A); });
-	input.AddListener(K_D, [&]() {player.Move(K_D); });
-	input.AddListener(K_E, [&]() {player.Move(K_E); });
+	input.AddListener(K_W, [&]() { player.Move(K_W); });
+	input.AddListener(K_S, [&]() { player.Move(K_S); });
+	input.AddListener(K_A, [&]() { player.Move(K_A); });
+	input.AddListener(K_D, [&]() { player.Move(K_D); });
+	input.AddListener(K_Q, [&]() { player.DrinkPoption(K_Q); });
+
+	input.AddListener(K_ESCAPE, [&]() { running = false; });
 
 	input.StartListen();
 
 
+	
 	while (running)
 	{
 		CC::Clear(); 
@@ -78,18 +80,36 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 
 		Vector2 currentMapOffset = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap()->_offset;
 		Vector2 playerPosInMap = player.GetPosition();
+		Enemy* enemy = GetEnemyAt(player.GetPosition());
+
+		if (IsPortal(playerPosInMap)) {
+			ActivatePortal(playerPosInMap, player);
+		}
+
+		if (enemy != nullptr)
+		{
+			player.TakeDamage(enemy->GetDamage());
+			
+			/*
+			if (player.IsDead())
+				running = false;
+			*/
+		}
 
 		CC::Lock();
 		CC::SetPosition(playerPosInMap.X + currentMapOffset.X, playerPosInMap.Y + currentMapOffset.Y);
+		//player.PrintPosition();
 		CC::SetColor(CC::GREEN, CC::BLACK);
 		std::cout << "J";
 		
 		CC::SetPosition(0, _cellSize.Y + 4 + currentMapOffset.Y);
 		CC::SetColor(CC::WHITE, CC::BLACK);
-		std::cout << "Mapa: [" << _currentMapIndex.X << "," << _currentMapIndex.Y;
+		std::cout << "Mapa: [" << _currentMapIndex.X << "," << _currentMapIndex.Y << "]";
 		CC::Unlock();
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(8));
 	}
+
+	input.StopListen();
 }
 
 void OverworldMap::DrawCurrentMap()
@@ -99,11 +119,13 @@ void OverworldMap::DrawCurrentMap()
 
 	Vector2 offset = map->GetNodeMap()->_offset;
 
+	CC::Lock();
 	for (Enemy* e : _enemies)
 	{
 		Vector2 room = e->GetRoom();
 
-		if (room.X == _currentMapIndex.X && room.Y == _currentMapIndex.Y)
+		if (room.X == _currentMapIndex.X &&
+			room.Y == _currentMapIndex.Y)
 		{
 			Vector2 pos = e->GetPosition();
 			Vector2 absPos = pos + offset;
@@ -113,6 +135,7 @@ void OverworldMap::DrawCurrentMap()
 			std::cout << "E";
 		}
 	}
+	CC::Unlock();
 }
 
 void OverworldMap::DrawHUD(Player& player)
@@ -160,8 +183,8 @@ bool OverworldMap::IsPortal(Vector2 pos)
 Enemy* OverworldMap::GetEnemyAt(const Vector2& pos)
 {
 	for (auto& e : _enemies)
-		if (e->GetPosition().X == pos.X + 1 &&
-			e->GetPosition().Y == pos.Y + 1)
+		if (e->GetPosition().X == pos.X &&
+			e->GetPosition().Y == pos.Y)
 			return e;
 
 	return nullptr;

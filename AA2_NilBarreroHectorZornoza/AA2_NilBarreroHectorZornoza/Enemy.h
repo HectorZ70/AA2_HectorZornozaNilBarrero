@@ -7,6 +7,7 @@ class Enemy
 {
 private:
 	int e_hp = 20;
+	int dmg = 15;
 	std::chrono::steady_clock::time_point _lastActionTime;
 	std::chrono::milliseconds _coolDown{ 300 };
 	std::mutex _mutexEnemy;
@@ -29,6 +30,8 @@ public:
 	void RunEnemies();
 
 	void TakeDamage(int dmg);
+
+	int GetDamage() const;
 	
 	bool IsDead() const;
 };

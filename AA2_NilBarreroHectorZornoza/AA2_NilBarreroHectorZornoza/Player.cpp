@@ -60,6 +60,12 @@ void Player::SetPosition(Vector2 pos)
     _mutexPlayer.unlock();
 }
 
+bool Player::IsDead()
+{
+    if(GetHP() <= 0)
+        return true;
+}
+
 void Player::DrinkPoption(int key)
 {
     if (key == K_Q && c_hp == 100 && c_potions > 0) {
@@ -122,6 +128,11 @@ bool Player::Attack(EDirection dir, std::vector<Enemy*>& enemies)
     return false;
 }
 
+void Player::TakeDamage(int dmg)
+{
+    c_hp -= dmg;
+}
+
 
 Player::Player()
 {
@@ -135,5 +146,6 @@ Player::Player()
 
 Player::~Player()
 {
-
+    //if (IsDead())
+        
 }
