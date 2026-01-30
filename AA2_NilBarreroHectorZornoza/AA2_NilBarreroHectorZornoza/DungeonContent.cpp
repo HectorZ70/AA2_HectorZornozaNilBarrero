@@ -8,10 +8,8 @@ DungeonContent::DungeonContent(TileType type, char symbol)
 
 void DungeonContent::Draw(Vector2 offset)
 {
-	CC::Lock();
 	CC::SetPosition(offset.X, offset.Y);
 	std::cout << _symbol;
-	CC::Unlock();
 }
 
 TileType DungeonContent::GetType() const

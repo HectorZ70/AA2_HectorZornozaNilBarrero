@@ -20,7 +20,7 @@ LootType Chest::GenerateRandomLootType()
 
 Loot* Chest::OpenChest()
 {
+    SetOpened(true);
     LootType loot = GenerateRandomLootType();
-
     return new Loot(loot);
 }

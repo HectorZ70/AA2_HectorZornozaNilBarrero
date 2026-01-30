@@ -2,6 +2,8 @@
 #include "DungeonContent.h" // Necesario para el casting
 #include <conio.h>          // Para _getch() en Windows (simulacion)
 #include "ConsoleControl_.h" 
+#include "Chest.h"
+#include "Loot.h"
 #include "Enemy.h"
 
 using CC = ConsoleControl;
@@ -58,17 +60,50 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 	player.SetPosition(_playerPos);
 	bool running = true;
 
-	input.AddListener(K_W, [&]() { player.Move(K_W); });
-	input.AddListener(K_S, [&]() { player.Move(K_S); });
-	input.AddListener(K_A, [&]() { player.Move(K_A); });
-	input.AddListener(K_D, [&]() { player.Move(K_D); });
+	input.AddListener(K_W, [&]() {
+		Vector2 next = player.GetPosition() + Vector2(0, -1);
+		if (!IsWall(next))
+			player.Move(K_W);
+		});
+
+	input.AddListener(K_S, [&]() {
+		Vector2 next = player.GetPosition() + Vector2(0, 1);
+		if (!IsWall(next))
+			player.Move(K_S);
+		});
+
+	input.AddListener(K_A, [&]() {
+		Vector2 next = player.GetPosition() + Vector2(-1, 0);
+		if (!IsWall(next))
+			player.Move(K_A);
+		});
+
+	input.AddListener(K_D, [&]() {
+		Vector2 next = player.GetPosition() + Vector2(1, 0);
+		if (!IsWall(next))
+			player.Move(K_D);
+		});
+	input.AddListener(K_E, [&]() {
+		if (IsChest(player.GetPosition())) {
+			InteractWithChest(player);
+		}
+		});
+
+	input.AddListener(K_SPACE, [&]() {
+		Enemy* enemy = GetEnemyAt(player.GetPosition());
+		if (enemy && !enemy->IsDead())
+		{
+			enemy->TakeDamage(player.GetDamage());
+		}
+		});
 	input.AddListener(K_Q, [&]() { player.DrinkPoption(K_Q); });
 
 	input.AddListener(K_ESCAPE, [&]() { running = false; });
 
 	input.StartListen();
 
-
+	SpawnChest(1);
+	SpawnCoins(10);
 	
 	while (running)
 	{
@@ -77,6 +112,7 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 		UpdateEnemies();
 		DrawCurrentMap();
 		DrawHUD(player);
+		
 
 		Vector2 currentMapOffset = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap()->_offset;
 		Vector2 playerPosInMap = player.GetPosition();
@@ -86,14 +122,14 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 			ActivatePortal(playerPosInMap, player);
 		}
 
+		TryPickCoin(player);
+
 		if (enemy != nullptr)
 		{
 			player.TakeDamage(enemy->GetDamage());
 			
-			/*
-			if (player.IsDead())
-				running = false;
-			*/
+			//if (player.IsDead())
+				//running = false;
 		}
 
 		CC::Lock();
@@ -104,7 +140,6 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 		
 		CC::SetPosition(0, _cellSize.Y + 4 + currentMapOffset.Y);
 		CC::SetColor(CC::WHITE, CC::BLACK);
-		std::cout << "Mapa: [" << _currentMapIndex.X << "," << _currentMapIndex.Y << "]";
 		CC::Unlock();
 		std::this_thread::sleep_for(std::chrono::milliseconds(8));
 	}
@@ -112,29 +147,164 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 	input.StopListen();
 }
 
+void OverworldMap::SpawnCoins(int count)
+{
+	NodeMap* map =
+		_dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
+
+	int spawned = 0;
+	int attempts = 0;
+	const int MAX_ATTEMPTS = 100;
+
+	while (spawned < count && attempts < MAX_ATTEMPTS)
+	{
+		int x = rand() % _cellSize.X;
+		int y = rand() % _cellSize.Y;
+
+		map->SafePickNode(Vector2(x, y), [&](Node* node)
+			{
+				if (!node) return;
+
+				DungeonContent* content = node->GetContent<DungeonContent>();
+				if (content && content->GetType() == TileType::Empty)
+				{
+					node->SetContent(new DungeonContent(TileType::Coins, '$'));
+					spawned++;
+				}
+			});
+
+		attempts++;
+	}
+}
+
+void OverworldMap::TryPickCoin(Player& player)
+{
+	NodeMap* map =
+		_dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
+
+	map->SafePickNode(player.GetPosition(), [&](Node* node)
+		{
+			if (!node) return;
+
+			DungeonContent* content = node->GetContent<DungeonContent>();
+			if (!content) return;
+
+			if (content->GetType() == TileType::Coins)
+			{
+				player.AddCoins(1); // o 5, 10, lo que quieras
+				node->SetContent(new DungeonContent(TileType::Empty, ' '));
+			}
+		});
+}
+
+void OverworldMap::SpawnChest(int count)
+{
+	NodeMap* map = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
+
+	int spawned = 0;
+	int attempts = 0;
+	const int MAX_ATTEMPTS = 100;
+
+	while (spawned < count && attempts < MAX_ATTEMPTS)
+	{
+		int x = rand() % _cellSize.X;
+		int y = rand() % _cellSize.Y;
+
+		map->SafePickNode(Vector2(x, y), [&](Node* node)
+			{
+				if (!node) return;
+
+				DungeonContent* content = node->GetContent<DungeonContent>();
+				if (content && content->GetType() == TileType::Empty)
+				{
+					node->SetContent(new Chest());
+					spawned++;
+				}
+			});
+
+		attempts++;
+	}
+}
+
+void OverworldMap::InteractWithChest(Player& player)
+{
+	NodeMap* currentMap =
+		_dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
+
+
+	currentMap->SafePickNode(player.GetPosition(), [&](Node* node)
+		{
+			if (!node) return;
+
+			Chest* chest = node->GetContent<Chest>();
+			if (!chest) return;
+
+			Loot* loot = chest->OpenChest();
+
+			player.AddCoins(100);
+			player.AddPotion();
+			switch (loot->GetLootType())
+			{
+			case LootType::Potion:
+				player.AddPotion();
+				break;
+
+			case LootType::Coin:
+				player.AddCoins(100);
+				break;
+
+			case LootType::Weapon:
+				// EquipWeapon
+				break;
+			}
+
+			node->SetContent(new DungeonContent(TileType::Empty, ' '));
+			delete loot;
+		});
+}
+
 void OverworldMap::DrawCurrentMap()
 {
 	DungeonMap* map = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y];
 	map->Draw();
 
-	Vector2 offset = map->GetNodeMap()->_offset;
+	NodeMap* nodeMap = map->GetNodeMap();
+	Vector2 offset = nodeMap->_offset;
 
 	CC::Lock();
+
+	for (int y = 0; y < _cellSize.Y; ++y)
+	{
+		for (int x = 0; x < _cellSize.X; ++x)
+		{
+			Vector2 pos(x, y);
+			nodeMap->SafePickNode(pos, [&](Node* node)
+				{
+					if (!node) return;
+
+					DungeonContent* content = node->GetContent<DungeonContent>();
+					if (!content) return;
+
+					Vector2 absPos = pos + offset;
+					content->Draw(absPos);
+				});
+		}
+	}
+
 	for (Enemy* e : _enemies)
 	{
+		if (e->IsDead()) continue; 
+
 		Vector2 room = e->GetRoom();
-
-		if (room.X == _currentMapIndex.X &&
-			room.Y == _currentMapIndex.Y)
+		if (room.X == _currentMapIndex.X && room.Y == _currentMapIndex.Y)
 		{
-			Vector2 pos = e->GetPosition();
-			Vector2 absPos = pos + offset;
-
+			Vector2 absPos = e->GetPosition() + offset;
 			CC::SetPosition(absPos.X, absPos.Y);
 			CC::SetColor(CC::RED, CC::BLACK);
 			std::cout << "E";
 		}
 	}
+
 	CC::Unlock();
 }
 
@@ -150,6 +320,9 @@ void OverworldMap::DrawHUD(Player& player)
 
 	CC::SetPosition(hudX, hudY + 1);
 	std::cout << "Pots: " << player.GetPotions();
+
+	CC::SetPosition(hudX, hudY + 2);
+	std::cout << "Coins: " << player.GetCoins();
 }
 
 void OverworldMap::UpdateEnemies()
@@ -167,11 +340,13 @@ bool OverworldMap::IsPortal(Vector2 pos)
 
 	currentMap->SafePickNode(pos, [&](Node* node)
 		{
-			if (node == nullptr) return;
+			if (!node) return;
 
-			DungeonContent* content = node->GetContent<DungeonContent>();
+			// Intentamos hacer cast seguro
+			DungeonContent* content = dynamic_cast<DungeonContent*>(node->GetContent<INodeContent>());
+			if (!content) return; // Si no es DungeonContent, salimos
 
-			if (content != nullptr && content->GetType() == TileType::Portal)
+			if (content->GetType() == TileType::Portal)
 			{
 				isPortal = true;
 			}
@@ -247,7 +422,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 
 bool OverworldMap::IsChest(Vector2 pos)
 {
-	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
 	bool isChest = false;
 
 	currentMap->SafePickNode(pos, [&](Node* node)
@@ -267,7 +442,7 @@ bool OverworldMap::IsChest(Vector2 pos)
 
 bool OverworldMap::IsWall(Vector2 pos)
 {
-	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
 	bool isWall = false;
 
 	currentMap->SafePickNode(pos, [&](Node* node)

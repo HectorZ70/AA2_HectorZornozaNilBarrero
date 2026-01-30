@@ -52,6 +52,11 @@ Vector2 Player::GetPosition()
     return pos;
 }
 
+int Player::GetDamage() const
+{
+    return weaponDamage;
+}
+
 void Player::SetPosition(Vector2 pos)
 {
     _mutexPlayer.lock();
@@ -76,6 +81,16 @@ void Player::DrinkPoption(int key)
         c_potions--;
         c_hp += 25;
     }
+}
+
+void Player::AddPotion()
+{
+    c_potions++;
+}
+
+void Player::AddCoins(int coins)
+{
+    c_coins += coins;
 }
 
 bool Player::Attack(EDirection dir, std::vector<Enemy*>& enemies)
@@ -138,7 +153,7 @@ Player::Player()
 {
     _x = 5;
     _y = 5;
-    c_hp = 100;
+    c_hp = 1000;
     c_potions = 4; 
     weaponRange = 1;
     _lastActionTime = std::chrono::steady_clock::now();

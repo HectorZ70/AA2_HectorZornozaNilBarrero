@@ -34,6 +34,10 @@ private:
 	void DrawCurrentMap();
 	void DrawHUD(Player& player);
 
+	void SpawnCoins(int count);
+	void TryPickCoin(Player& player);
+	void SpawnChest(int count);
+	void InteractWithChest(Player& player);
 	void UpdateEnemies();
 	bool IsPortal(Vector2 pos);
 	Enemy* GetEnemyAt(const Vector2& pos);
