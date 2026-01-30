@@ -22,7 +22,7 @@ void AutoSaveLoop(OverworldMap& gameMap, Player& player) {
 }
 
 int main() {
-    srand(static_cast<unsigned int>(time(NULL)));
+    srand((time(NULL)));
 
     Vector2 cellSize(10, 10);
     Vector2 mapSize(3, 3);

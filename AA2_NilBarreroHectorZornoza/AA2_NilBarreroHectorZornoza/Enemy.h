@@ -14,7 +14,9 @@ private:
 	Vector2 _pos;
 	Vector2 _room;
 	DungeonMap* _map;
+	bool _isAttacking = false;
 	bool running = true;
+	bool _lootDropped = false;
 
 public:
 	Enemy(Vector2 initPos, Vector2 room, DungeonMap* map)
@@ -22,6 +24,9 @@ public:
 
 	Vector2 GetPosition() const { return _pos; }
 	Vector2 GetRoom() const { return _room; }
+
+	bool HasDroppedLoot() const { return _lootDropped; }
+	void MarkLootDropped() { _lootDropped = true; }
 
 	void Stop() { running = false; }
 

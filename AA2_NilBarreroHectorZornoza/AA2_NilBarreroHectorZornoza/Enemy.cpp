@@ -77,6 +77,7 @@ int Enemy::GetDamage() const
     return dmg;
 }
 
+
 bool Enemy::IsDead() const
 {
 	return e_hp <= 0;

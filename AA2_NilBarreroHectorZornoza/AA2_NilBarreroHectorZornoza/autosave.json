@@ -2,24 +2,24 @@
 	"enemies" : 
 	[
 		{
-			"dead" : false,
-			"hp" : 20,
-			"x" : 6,
-			"y" : 4
-		},
-		{
-			"dead" : false,
+			"dead" : true,
 			"hp" : 20,
 			"x" : 3,
-			"y" : 1
+			"y" : 6
+		},
+		{
+			"dead" : true,
+			"hp" : 20,
+			"x" : 7,
+			"y" : 7
 		}
 	],
 	"player" : 
 	{
-		"hp" : 100,
-		"pos_x" : 8,
-		"pos_y" : 4,
-		"potions" : 4
+		"hp" : -425,
+		"pos_x" : 6,
+		"pos_y" : 7,
+		"potions" : 5
 	},
 	"world" : 
 	{
