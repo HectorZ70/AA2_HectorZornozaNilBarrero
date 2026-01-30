@@ -86,7 +86,7 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 		
 		CC::SetPosition(0, _cellSize.Y + 4 + currentMapOffset.Y);
 		CC::SetColor(CC::WHITE, CC::BLACK);
-		std::cout << "Mapa: [" << _currentMapIndex.X << "," << _currentMapIndex.Y
+		std::cout << "Mapa: [" << _currentMapIndex.X << "," << _currentMapIndex.Y;
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
