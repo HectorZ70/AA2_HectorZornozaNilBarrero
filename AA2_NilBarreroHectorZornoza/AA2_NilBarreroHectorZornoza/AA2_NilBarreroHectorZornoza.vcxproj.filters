@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="ConsoleControl_.h" />
+    <ClInclude Include="DungeonContent.h" />
+    <ClInclude Include="DungeonMap.h" />
+    <ClInclude Include="INodeContent.h" />
+    <ClInclude Include="NodeMap_.h" />
+    <ClInclude Include="Node_.h" />
+    <ClInclude Include="OverworldMap.h" />
+    <ClInclude Include="Vector2_.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="InputConsts.h" />
+    <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="Chest.h" />
+    <ClInclude Include="Loot.h" />
+    <ClInclude Include="SaveState.h" />
+    <ClInclude Include="..\include\json\json.h" />
+    <ClInclude Include="..\include\json\json_features.h" />
+    <ClInclude Include="SaveManager.h" />
+    <ClInclude Include="json_tool.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ConsoleControl_.cpp" />
+    <ClCompile Include="DungeonContent.cpp" />
+    <ClCompile Include="DungeonMap.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="NodeMap_.cpp" />
+    <ClCompile Include="Node_.cpp" />
+    <ClCompile Include="OverworldMap.cpp" />
+    <ClCompile Include="Vector2_.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="InputSystem.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Chest.cpp" />
+    <ClCompile Include="Loot.cpp" />
+    <ClCompile Include="json.cpp" />
+    <ClCompile Include="AutoSave.h" />
+    <ClCompile Include="SaveManager.cpp" />
+    <ClCompile Include="json_reader.cpp" />
+    <ClCompile Include="json_value.cpp" />
+    <ClCompile Include="json_writer.cpp" />
+  </ItemGroup>
+</Project>
