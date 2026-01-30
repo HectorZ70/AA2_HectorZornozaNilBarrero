@@ -89,7 +89,7 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 		}
 		});
 
-	input.AddListener(K_E, [&]() {
+	input.AddListener(K_SPACE, [&]() {
 		Enemy* enemy = GetEnemyAt(player.GetPosition());
 		if (enemy && !enemy->IsDead())
 		{
@@ -291,16 +291,18 @@ void OverworldMap::DrawCurrentMap()
 		}
 	}
 
-	for (Enemy* e : _enemies) 
-	{ 
-		Vector2 room = e->GetRoom(); 
-		if (room.X == _currentMapIndex.X && room.Y == _currentMapIndex.Y) 
-		{ 
-			Vector2 absPos = e->GetPosition() + offset; 
-			CC::SetPosition(absPos.X, absPos.Y); 
-			CC::SetColor(CC::RED, CC::BLACK); 
-			std::cout << "E"; 
-		} 
+	for (Enemy* e : _enemies)
+	{
+		if (e->IsDead()) continue; 
+
+		Vector2 room = e->GetRoom();
+		if (room.X == _currentMapIndex.X && room.Y == _currentMapIndex.Y)
+		{
+			Vector2 absPos = e->GetPosition() + offset;
+			CC::SetPosition(absPos.X, absPos.Y);
+			CC::SetColor(CC::RED, CC::BLACK);
+			std::cout << "E";
+		}
 	}
 
 	CC::Unlock();

@@ -58,18 +58,9 @@ void Enemy::RunEnemies()
 
 void Enemy::TakeDamage(int dmg)
 {
-	e_hp -= dmg;
-
-	if (e_hp <= 0)
-	{
-		e_hp = 0;
-		std::cout << "Enemy defeated!\n";
-	}
-
-	else
-	{
-		std::cout << "Enemy HP: " << e_hp << "\n";
-	}
+    std::lock_guard<std::mutex> lock(_mutexEnemy); 
+    e_hp -= dmg;
+    if (e_hp < 0) e_hp = 0; 
 }
 
 int Enemy::GetDamage() const

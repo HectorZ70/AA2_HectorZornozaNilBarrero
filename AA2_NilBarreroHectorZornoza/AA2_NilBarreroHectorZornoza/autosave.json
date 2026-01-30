@@ -4,21 +4,21 @@
 		{
 			"dead" : true,
 			"hp" : 20,
-			"x" : 3,
+			"x" : 6,
 			"y" : 6
 		},
 		{
 			"dead" : true,
 			"hp" : 20,
-			"x" : 7,
-			"y" : 7
+			"x" : 4,
+			"y" : 5
 		}
 	],
 	"player" : 
 	{
-		"hp" : -425,
-		"pos_x" : 6,
-		"pos_y" : 7,
+		"hp" : 775,
+		"pos_x" : 1,
+		"pos_y" : 6,
 		"potions" : 5
 	},
 	"world" : 
