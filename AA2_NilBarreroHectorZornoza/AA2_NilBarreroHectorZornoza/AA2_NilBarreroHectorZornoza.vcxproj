@@ -139,6 +139,7 @@
     <ClInclude Include="INodeContent.h" />
     <ClInclude Include="InputConsts.h" />
     <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="json_tool.h" />
     <ClInclude Include="Loot.h" />
     <ClInclude Include="NodeMap_.h" />
     <ClInclude Include="Node_.h" />
@@ -150,9 +151,6 @@
     <ClInclude Include="Vector2_.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Downloads\jsoncpp-master (1)\jsoncpp-master\src\lib_json\json_reader.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\jsoncpp-master (1)\jsoncpp-master\src\lib_json\json_value.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\jsoncpp-master (1)\jsoncpp-master\src\lib_json\json_writer.cpp" />
     <ClCompile Include="Chest.cpp" />
     <ClCompile Include="ConsoleControl_.cpp" />
     <ClCompile Include="DungeonContent.cpp" />
@@ -160,6 +158,9 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="json.cpp" />
+    <ClCompile Include="json_reader.cpp" />
+    <ClCompile Include="json_value.cpp" />
+    <ClCompile Include="json_writer.cpp" />
     <ClCompile Include="Loot.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NodeMap_.cpp" />

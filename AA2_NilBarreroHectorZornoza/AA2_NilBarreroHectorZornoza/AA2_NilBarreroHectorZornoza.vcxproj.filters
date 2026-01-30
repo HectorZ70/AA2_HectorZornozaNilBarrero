@@ -21,6 +21,7 @@
     <ClInclude Include="..\include\json\json.h" />
     <ClInclude Include="..\include\json\json_features.h" />
     <ClInclude Include="SaveManager.h" />
+    <ClInclude Include="json_tool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleControl_.cpp" />
@@ -40,8 +41,8 @@
     <ClCompile Include="json.cpp" />
     <ClCompile Include="AutoSave.h" />
     <ClCompile Include="SaveManager.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\jsoncpp-master (1)\jsoncpp-master\src\lib_json\json_reader.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\jsoncpp-master (1)\jsoncpp-master\src\lib_json\json_value.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\jsoncpp-master (1)\jsoncpp-master\src\lib_json\json_writer.cpp" />
+    <ClCompile Include="json_reader.cpp" />
+    <ClCompile Include="json_value.cpp" />
+    <ClCompile Include="json_writer.cpp" />
   </ItemGroup>
 </Project>

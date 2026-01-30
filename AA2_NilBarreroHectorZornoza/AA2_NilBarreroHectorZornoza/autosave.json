@@ -1,0 +1,29 @@
+{
+	"enemies" : 
+	[
+		{
+			"dead" : false,
+			"hp" : 20,
+			"x" : 4,
+			"y" : 4
+		},
+		{
+			"dead" : false,
+			"hp" : 20,
+			"x" : 7,
+			"y" : 4
+		}
+	],
+	"player" : 
+	{
+		"hp" : 100,
+		"pos_x" : 7,
+		"pos_y" : 5,
+		"potions" : 4
+	},
+	"world" : 
+	{
+		"map_x" : 0,
+		"map_y" : 0
+	}
+}
