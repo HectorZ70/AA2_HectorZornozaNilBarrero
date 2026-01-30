@@ -4,49 +4,56 @@
 
 void Enemy::MoveAI()
 {
-	int dir = rand() % 4;
-	Vector2 newPos = _pos;
+    auto now = std::chrono::steady_clock::now();
+    auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - _lastActionTime);
 
-	switch (dir)
+    if (diff < _coolDown)
+        return;
+
+    int dir = rand() % 4;
+    Vector2 newPos = _pos;
+
+    switch (dir)
+    {
+    case 0: newPos.X++; break;
+    case 1: newPos.X--; break;
+    case 2: newPos.Y++; break;
+    case 3: newPos.Y--; break;
+    }
+
+    NodeMap* nodeMap = _map->GetNodeMap();
+    bool canMove = false;
+
+    nodeMap->SafePickNode(newPos, [&](Node* node)
+        {
+            if (!node) return;
+
+            DungeonContent* content = node->GetContent<DungeonContent>();
+            if (!content)
+                canMove = true;
+            else if (content->GetType() == TileType::Wall ||
+                content->GetType() == TileType::Portal ||
+                content->GetType() == TileType::Chest)
+                canMove = false;
+            else
+                canMove = true;
+        });
+
+    if (canMove)
+    {
+        std::lock_guard<std::mutex> lock(_mutexEnemy);
+        _pos = newPos;
+        _lastActionTime = now;
+    }
+}
+
+void Enemy::RunEnemies()
+{
+	while (running)
 	{
-	case 0:
-		newPos.X++;
-		break;
-	case 1:
-		newPos.X--;
-		break;
-	case 2:
-		newPos.Y++;
-		break;
-	case 3:
-		newPos.Y--;
-		break;
-	default:
-		break;
+		MoveAI();
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
-
-	NodeMap* nodeMap = _map->GetNodeMap();
-
-	bool canMove = false;
-
-	nodeMap->SafePickNode(newPos, [&](Node* node)
-		{
-			if (node == nullptr) return;
-
-			DungeonContent* content = node->GetContent<DungeonContent>();
-
-			if (content == nullptr)
-				canMove = true;
-			else if (content->GetType() == TileType::Wall)
-				canMove = false;
-			else if (content->GetType() == TileType::Portal)
-				canMove = false;
-			else
-				canMove = true;
-		});
-
-	if (canMove)
-		_pos = newPos;
 }
 
 void Enemy::TakeDamage(int dmg)

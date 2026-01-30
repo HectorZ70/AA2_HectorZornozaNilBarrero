@@ -57,11 +57,22 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 	int key = 0;
 	_playerPos = Vector2(_cellSize.X / 2, _cellSize.Y / 2);
 	player.SetPosition(_playerPos);
+	bool running = true;
+
+	input.AddListener(K_W, [&]() {player.Move(K_W); });
+	input.AddListener(K_S, [&]() {player.Move(K_S); });
+	input.AddListener(K_A, [&]() {player.Move(K_A); });
+	input.AddListener(K_D, [&]() {player.Move(K_D); });
+	input.AddListener(K_E, [&]() {player.Move(K_E); });
+
+	input.StartListen();
 
 
-	while (key != K_ESCAPE)
+	while (running)
 	{
 		CC::Clear(); 
+		
+		UpdateEnemies();
 		DrawCurrentMap();
 		DrawHUD(player);
 
@@ -72,52 +83,12 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 		CC::SetPosition(playerPosInMap.X + currentMapOffset.X, playerPosInMap.Y + currentMapOffset.Y);
 		CC::SetColor(CC::GREEN, CC::BLACK);
 		std::cout << "J";
-
+		
 		CC::SetPosition(0, _cellSize.Y + 4 + currentMapOffset.Y);
 		CC::SetColor(CC::WHITE, CC::BLACK);
-		std::cout << "Mapa: [" << _currentMapIndex.X << ", " << _currentMapIndex.Y << "] | Pos: [" << playerPosInMap.X << ", " << playerPosInMap.Y << "]";
-		std::cout << "\n\n(ESC) Salir | (W/A/S/D) Mover ";
-		CC::Unlock();
+		std::cout << "Mapa: [" << _currentMapIndex.X << "," << _currentMapIndex.Y
 
-		key = _getch();
-
-		EDirection dir;
-
-			Vector2 oldPos = player.GetPosition();
-
-			player.Move(key);
-			
-			player.DrinkPoption(key);
-
-			Vector2 newPos = player.GetPosition();
-
-			Enemy* target = GetEnemyAt(newPos);
-
-			if (newPos.Y < oldPos.Y) dir = UP;
-			else if (newPos.Y > oldPos.Y) dir = DOWN;
-			else if (newPos.X < oldPos.X) dir = RIGHT;
-			else if (newPos.X > oldPos.X) dir = LEFT;
-
-			if (newPos.X != oldPos.X || newPos.Y != oldPos.Y)
-			{
-				if (IsPortal(newPos))
-				{
-					ActivatePortal(newPos, player);
-				}
-				else if (IsWall(newPos))
-				{
-					player.SetPosition(oldPos);
-				}
-				else if (IsChest(newPos))
-				{
-
-				}
-				else if (GetEnemyAt(newPos))
-				{
-					player.Attack(dir, _enemies);
-				}
-				_playerPos = player.GetPosition();
-			}
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 }
 
@@ -156,6 +127,14 @@ void OverworldMap::DrawHUD(Player& player)
 
 	CC::SetPosition(hudX, hudY + 1);
 	std::cout << "Pots: " << player.GetPotions();
+}
+
+void OverworldMap::UpdateEnemies()
+{
+	for (Enemy* enemy : _enemies)
+	{
+		enemy->MoveAI();
+	}
 }
 
 bool OverworldMap::IsPortal(Vector2 pos)

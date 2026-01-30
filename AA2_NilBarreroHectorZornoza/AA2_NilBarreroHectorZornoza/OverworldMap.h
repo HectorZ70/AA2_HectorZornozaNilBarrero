@@ -5,6 +5,7 @@
 #include "Enemy.h"
 #include "SaveState.h"
 #include <map>
+#include <thread>
 
 // El mapa grande de 3x3 que contiene los mapas pequeños
 class OverworldMap
@@ -33,6 +34,7 @@ private:
 	void DrawCurrentMap();
 	void DrawHUD(Player& player);
 
+	void UpdateEnemies();
 	bool IsPortal(Vector2 pos);
 	Enemy* GetEnemyAt(const Vector2& pos);
 	void ActivatePortal(Vector2 currentPos, Player& player);
