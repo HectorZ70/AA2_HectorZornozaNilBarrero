@@ -58,10 +58,29 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 	player.SetPosition(_playerPos);
 	bool running = true;
 
-	input.AddListener(K_W, [&]() { player.Move(K_W); });
-	input.AddListener(K_S, [&]() { player.Move(K_S); });
-	input.AddListener(K_A, [&]() { player.Move(K_A); });
-	input.AddListener(K_D, [&]() { player.Move(K_D); });
+	input.AddListener(K_W, [&]() {
+		Vector2 next = player.GetPosition() + Vector2(0, -1);
+		if (!IsWall(next))
+			player.Move(K_W);
+		});
+
+	input.AddListener(K_S, [&]() {
+		Vector2 next = player.GetPosition() + Vector2(0, 1);
+		if (!IsWall(next))
+			player.Move(K_S);
+		});
+
+	input.AddListener(K_A, [&]() {
+		Vector2 next = player.GetPosition() + Vector2(-1, 0);
+		if (!IsWall(next))
+			player.Move(K_A);
+		});
+
+	input.AddListener(K_D, [&]() {
+		Vector2 next = player.GetPosition() + Vector2(1, 0);
+		if (!IsWall(next))
+			player.Move(K_D);
+		});
 	input.AddListener(K_Q, [&]() { player.DrinkPoption(K_Q); });
 
 	input.AddListener(K_ESCAPE, [&]() { running = false; });
@@ -104,7 +123,6 @@ void OverworldMap::Run(InputSystem& input, Player& player)
 		
 		CC::SetPosition(0, _cellSize.Y + 4 + currentMapOffset.Y);
 		CC::SetColor(CC::WHITE, CC::BLACK);
-		std::cout << "Mapa: [" << _currentMapIndex.X << "," << _currentMapIndex.Y << "]";
 		CC::Unlock();
 		std::this_thread::sleep_for(std::chrono::milliseconds(8));
 	}
@@ -167,11 +185,13 @@ bool OverworldMap::IsPortal(Vector2 pos)
 
 	currentMap->SafePickNode(pos, [&](Node* node)
 		{
-			if (node == nullptr) return;
+			if (!node) return;
 
-			DungeonContent* content = node->GetContent<DungeonContent>();
+			// Intentamos hacer cast seguro
+			DungeonContent* content = dynamic_cast<DungeonContent*>(node->GetContent<INodeContent>());
+			if (!content) return; // Si no es DungeonContent, salimos
 
-			if (content != nullptr && content->GetType() == TileType::Portal)
+			if (content->GetType() == TileType::Portal)
 			{
 				isPortal = true;
 			}
@@ -247,7 +267,7 @@ void OverworldMap::ActivatePortal(Vector2 currentPos, Player& player)
 
 bool OverworldMap::IsChest(Vector2 pos)
 {
-	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
 	bool isChest = false;
 
 	currentMap->SafePickNode(pos, [&](Node* node)
@@ -267,7 +287,7 @@ bool OverworldMap::IsChest(Vector2 pos)
 
 bool OverworldMap::IsWall(Vector2 pos)
 {
-	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.Y][_currentMapIndex.X]->GetNodeMap();
+	NodeMap* currentMap = _dungeonMaps[_currentMapIndex.X][_currentMapIndex.Y]->GetNodeMap();
 	bool isWall = false;
 
 	currentMap->SafePickNode(pos, [&](Node* node)
